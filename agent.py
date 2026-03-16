@@ -8,6 +8,7 @@ Usage:
 """
 
 import anyio
+import subprocess
 from datetime import datetime
 from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 import config
@@ -67,6 +68,15 @@ async def main():
         if isinstance(message, ResultMessage):
             print("\nDone!")
             print(f"Report saved to: {output_file}")
+            print("\nPushing to GitHub...")
+            try:
+                repo_dir = "/Users/devan/Desktop/Claude Code Agents/Shopify Product Data Analysis"
+                subprocess.run(["git", "add", "-A"], cwd=repo_dir, check=True)
+                subprocess.run(["git", "commit", "-m", f"Add report: {output_file}"], cwd=repo_dir, check=True)
+                subprocess.run(["git", "push", "full-project", "main"], cwd=repo_dir, check=True)
+                print("GitHub updated.")
+            except subprocess.CalledProcessError as e:
+                print(f"GitHub push failed: {e}")
 
 
 anyio.run(main)
