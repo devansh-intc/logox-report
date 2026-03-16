@@ -3,88 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lion's Mane Extract — Ad Performance & Sales Analysis | Mar 1–15, 2025 vs 2026</title>
+<title>Lion's Mane Extracts — Ad Performance & Sales Analysis | Mar 1–15, 2025 vs 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --green-dark:  #1B4332;
-    --green-mid:   #2D6A4F;
-    --green-light: #52B788;
-    --green-pale:  #D8F3DC;
-    --amber:       #D4A017;
-    --amber-light: #FFF3CD;
-    --red:         #C0392B;
+    --navy:        #020912;
+    --navy-mid:    #0D1B2A;
+    --gold:        #FFB919;
+    --gold-light:  #FFF3DC;
+    --green:       #34A853;
+    --green-pale:  #E6F4EA;
+    --red:         #EB001B;
     --red-light:   #FDECEA;
-    --bg:          #F4F7F5;
+    --bg:          #F2F2F2;
     --card:        #FFFFFF;
-    --text:        #1A2E22;
-    --muted:       #6B7C72;
-    --border:      #DDE8E2;
+    --text:        #020912;
+    --muted:       #6B7280;
+    --border:      #E4E4E4;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-  a{color:var(--green-mid)}
+  body{font-family:'Figtree','Avenir Next',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  a{color:var(--navy)}
 
   /* ── Header ── */
-  .header{background:linear-gradient(135deg,var(--green-dark) 0%,var(--green-mid) 100%);color:#fff;padding:36px 48px}
-  .header h1{font-size:1.9rem;font-weight:700;margin-bottom:4px}
-  .header .sub{opacity:.8;font-size:.95rem}
-  .header .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:10px}
+  .header{background:var(--navy);color:#fff;padding:28px 48px;display:flex;align-items:center;gap:32px}
+  .header-logo{height:52px;width:auto;flex-shrink:0}
+  .header-text{}
+  .header h1{font-size:1.75rem;font-weight:800;margin-bottom:4px;color:#fff}
+  .header .sub{opacity:.75;font-size:.92rem}
+  .header .badge{display:inline-block;background:var(--gold);color:var(--navy);border-radius:4px;padding:3px 12px;font-size:.78rem;font-weight:700;margin-top:10px}
 
   /* ── Layout ── */
   .container{max-width:1280px;margin:0 auto;padding:32px 24px}
   .section{margin-bottom:40px}
-  .section h2{font-size:1.25rem;font-weight:700;color:var(--green-dark);margin-bottom:4px;padding-bottom:8px;border-bottom:2px solid var(--green-pale)}
+  .section h2{font-size:1.25rem;font-weight:800;color:var(--navy);margin-bottom:4px;padding-bottom:8px;border-bottom:3px solid var(--gold)}
   .section-sub{font-size:.82rem;color:var(--muted);margin-bottom:16px;margin-top:4px}
 
   /* ── KPI Cards ── */
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px}
-  .kpi{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border);border-top:4px solid var(--green-mid)}
+  .kpi{background:var(--card);border-radius:0;padding:20px;border:1px solid var(--border);border-top:4px solid var(--gold)}
   .kpi.red{border-top-color:var(--red)}
-  .kpi.amber{border-top-color:var(--amber)}
-  .kpi.positive{border-top-color:var(--green-light)}
+  .kpi.amber{border-top-color:var(--gold)}
+  .kpi.positive{border-top-color:var(--green)}
   .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
   .kpi-val{font-size:1.6rem;font-weight:700;line-height:1.1}
   .kpi-sub{font-size:.75rem;color:var(--muted);margin-top:4px}
-  .up{color:#2D6A4F}.down{color:var(--red)}
+  .up{color:var(--green)}.down{color:var(--red)}
 
   /* ── Charts ── */
   .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
   .chart-wrap{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border)}
-  .chart-wrap h3{font-size:.9rem;font-weight:600;color:var(--green-dark);margin-bottom:14px}
+  .chart-wrap h3{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:14px}
   .chart-wrap canvas{max-height:260px}
-  .chart-full{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border);margin-bottom:20px}
-  .chart-full h3{font-size:.9rem;font-weight:600;color:var(--green-dark);margin-bottom:14px}
+  .chart-full{background:var(--card);border-radius:0;padding:20px;border:1px solid var(--border);margin-bottom:20px}
+  .chart-full h3{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:14px}
   .chart-full canvas{max-height:240px}
 
   /* ── Tables ── */
   .card{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border);margin-bottom:20px}
   .table-wrap{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:.83rem}
-  th{background:var(--green-dark);color:#fff;padding:9px 12px;text-align:left;font-weight:600;white-space:nowrap}
+  th{background:var(--navy);color:#fff;padding:9px 12px;text-align:left;font-weight:700;white-space:nowrap}
   td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
-  tr:hover td{background:#F0F7F3}
+  tr:hover td{background:#FFFBF0}
   .num{text-align:right;font-variant-numeric:tabular-nums}
   .bold{font-weight:600}
-  .tag{display:inline-block;border-radius:4px;padding:2px 8px;font-size:.72rem;font-weight:600}
-  .tag-up{background:#D8F3DC;color:#1B4332}
+  .tag{display:inline-block;border-radius:2px;padding:2px 8px;font-size:.72rem;font-weight:700}
+  .tag-up{background:#E6F4EA;color:#1A5C2A}
   .tag-down{background:#FDECEA;color:#7B1E14}
-  .tag-warn{background:#FFF3CD;color:#856404}
+  .tag-warn{background:#FFF3DC;color:#8A5C00}
 
   /* ── Insight boxes ── */
   .insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-  .insight{border-radius:10px;padding:18px 20px;border-left:4px solid var(--green-mid)}
-  .insight.green{background:var(--green-pale);border-color:var(--green-mid)}
+  .insight{border-radius:0;padding:18px 20px;border-left:4px solid var(--gold)}
+  .insight.green{background:var(--green-pale);border-color:var(--green)}
   .insight.red{background:var(--red-light);border-color:var(--red)}
-  .insight.amber{background:var(--amber-light);border-color:var(--amber)}
+  .insight.amber{background:var(--gold-light);border-color:var(--gold)}
   .insight h4{font-size:.85rem;font-weight:700;margin-bottom:6px}
   .insight p{font-size:.82rem;color:var(--text);line-height:1.5}
 
   /* ── Recommendations ── */
   .rec-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-  .rec{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border)}
-  .rec-num{width:28px;height:28px;border-radius:50%;background:var(--green-mid);color:#fff;font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-  .rec h4{font-size:.9rem;font-weight:700;margin-bottom:6px;color:var(--green-dark)}
+  .rec{background:var(--card);border-radius:0;padding:20px;border:1px solid var(--border);border-top:3px solid var(--gold)}
+  .rec-num{width:28px;height:28px;border-radius:0;background:var(--gold);color:var(--navy);font-size:.85rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .rec h4{font-size:.9rem;font-weight:700;margin-bottom:6px;color:var(--navy)}
   .rec p{font-size:.81rem;color:var(--muted);line-height:1.5}
   .rec ul{font-size:.81rem;color:var(--muted);line-height:1.6;padding-left:16px;margin-top:6px}
 
@@ -93,11 +98,11 @@
   .funnel-card{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border)}
   .funnel-card h3{font-size:.88rem;font-weight:600;color:var(--green-dark);margin-bottom:14px}
   .funnel-step{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:6px;border-radius:6px;font-size:.83rem}
-  .funnel-step.s1{background:#D8F3DC}
-  .funnel-step.s2{background:#B7E4C7}
-  .funnel-step.s3{background:#95D5B2}
-  .funnel-step.s4{background:#74C69D}
-  .funnel-step.s5{background:#52B788}
+  .funnel-step.s1{background:#FFF3DC}
+  .funnel-step.s2{background:#FFE8A3}
+  .funnel-step.s3{background:#FFDA6A}
+  .funnel-step.s4{background:#FFCB33}
+  .funnel-step.s5{background:#FFB919;color:var(--navy)}
   .funnel-step span:last-child{font-weight:700}
 
   .footer{text-align:center;padding:24px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);margin-top:20px}
@@ -106,9 +111,12 @@
 <body>
 
 <div class="header">
-  <h1>Lion's Mane Extract — Ad & Sales Performance Analysis</h1>
-  <div class="sub">Facebook Ads · Google Ads · Shopify Sales — March 1–15, 2025 vs March 1–15, 2026</div>
-  <span class="badge">Generated March 16, 2026 · 15-day period comparison</span>
+  <img src="https://lionsmaneextracts.com/cdn/shop/files/LMELogoUpd_new.png" alt="Lion's Mane Extracts" class="header-logo">
+  <div class="header-text">
+    <h1>Ad &amp; Sales Performance Analysis</h1>
+    <div class="sub">Facebook Ads · Google Ads · Shopify Sales — March 1–15, 2025 vs March 1–15, 2026</div>
+    <span class="badge">Generated March 16, 2026 · 15-day period comparison</span>
+  </div>
 </div>
 
 <div class="container">
@@ -671,8 +679,8 @@
 
 <script>
 const days = ['Mar 1','Mar 2','Mar 3','Mar 4','Mar 5','Mar 6','Mar 7','Mar 8','Mar 9','Mar 10','Mar 11','Mar 12','Mar 13','Mar 14','Mar 15'];
-const GREEN = '#2D6A4F', GREEN_L = '#52B788', AMBER = '#D4A017', RED = '#C0392B';
-const GREEN_A = 'rgba(45,106,79,0.15)', AMBER_A = 'rgba(212,160,23,0.15)';
+const GREEN = '#020912', GREEN_L = '#34A853', AMBER = '#FFB919', RED = '#EB001B';
+const GREEN_A = 'rgba(2,9,18,0.12)', AMBER_A = 'rgba(255,185,25,0.18)';
 
 const defaultOpts = (title) => ({
   responsive:true, maintainAspectRatio:true,
