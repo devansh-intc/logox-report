@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LogOX Performance Dashboard — March 14, 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* LogOX Brand Colors */
+    --logox-blue:   #1A5FA8;   /* "OX" blue from logo */
+    --logox-orange: #C85C28;   /* tagline burnt orange */
+    --logox-black:  #1A1A1A;   /* "Log" text black */
+
+    /* Light theme surfaces */
+    --bg:           #F7F5F2;   /* warm off-white, like natural paper */
+    --surface:      #FFFFFF;
+    --surface-2:    #F0EDE8;   /* slightly warm gray for table headers */
+    --border:       #E0DBD5;
+    --border-light: #EDE9E4;
+
+    /* Semantic colors */
+    --green:  #2A7A3B;
+    --red:    #C0392B;
+    --amber:  #C85C28;   /* brand orange doubles as warning */
+    --blue:   #1A5FA8;
+
+    /* Typography */
+    --text:   #1C1C1C;
+    --muted:  #6B6460;
+    --subtle: #9E9792;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,-apple-system,sans-serif; padding:32px; max-width:1400px; margin:0 auto; }
+
+  /* ── Header ── */
+  .report-header { display:flex; align-items:center; justify-content:space-between; padding-bottom:24px; margin-bottom:36px; border-bottom:3px solid var(--logox-blue); }
+  .header-left { display:flex; align-items:center; gap:24px; }
+  .header-logo { height:80px; width:auto; }
+  .header-divider { width:1px; height:64px; background:var(--border); }
+  .header-text h1 { font-size:1.5rem; font-weight:800; color:var(--logox-black); letter-spacing:-.02em; }
+  .header-text .subtitle { font-size:.85rem; color:var(--muted); margin-top:4px; }
+  .header-right { text-align:right; }
+  .header-date { font-size:.8rem; color:var(--muted); }
+  .header-badge { display:inline-block; margin-top:6px; padding:4px 12px; background:var(--logox-orange); color:#fff; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; border-radius:4px; }
+
+  h2 { font-size:1.1rem; font-weight:700; color:var(--logox-black); margin-bottom:4px; letter-spacing:-.01em; }
+  .section { margin-bottom:48px; }
+  .section-header { display:flex; align-items:baseline; gap:12px; margin-bottom:16px; }
+  .section-sub { font-size:.82rem; color:var(--muted); }
+
+  /* ── Summary cards ── */
+  .cards-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card-period { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--logox-blue); margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid var(--logox-blue); }
+  .metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .metric { display:flex; flex-direction:column; gap:3px; }
+  .metric-label { font-size:.67rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; font-weight:500; }
+  .metric-value { font-size:1.15rem; font-weight:700; color:var(--logox-black); }
+  .metric-value.blue   { color:var(--logox-blue);   }
+  .metric-value.orange { color:var(--logox-orange); }
+  .metric-value.green  { color:var(--green);  }
+  .metric-value.amber  { color:var(--amber);  }
+  .metric-value.red    { color:var(--red);    }
+
+  /* ── Insights ── */
+  .insights-context { background:#EBF2F9; border:1px solid #BAD3EC; border-left:4px solid var(--logox-blue); border-radius:8px; padding:14px 18px; margin-bottom:20px; font-size:.88rem; line-height:1.7; color:#2C3E50; }
+  .insights-context strong { color:var(--logox-black); font-weight:700; }
+  .insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .insight-col-header { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; padding:7px 12px; border-radius:6px; margin-bottom:12px; }
+  .insight-col-header.scale { background:#E8F5EA; color:var(--green); border:1px solid #C8E6CA; }
+  .insight-col-header.watch { background:#FDF3E7; color:#A0522D; border:1px solid #F5CBA7; }
+  .insight-col-header.act   { background:#FDEDEC; color:var(--red); border:1px solid #F1948A; }
+  .insight-card { border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+  .insight-card.scale { background:#F0FAF1; border:1px solid #C3E6C7; }
+  .insight-card.watch { background:#FEF9F0; border:1px solid #F5D5A3; }
+  .insight-card.act   { background:#FEF1EF; border:1px solid #F4A99E; }
+  .insight-title { font-size:.85rem; font-weight:700; margin-bottom:7px; }
+  .insight-card.scale .insight-title { color:#1B6B2A; }
+  .insight-card.watch .insight-title { color:#8B4513; }
+  .insight-card.act   .insight-title { color:#922B21; }
+  .insight-body { font-size:.8rem; line-height:1.65; color:#444; }
+  .insight-body strong { color:var(--logox-black); }
+  .insight-body em { color:var(--muted); font-style:normal; }
+
+  /* ── Charts ── */
+  .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .chart-card.full { grid-column:1/-1; }
+  canvas { max-height:300px; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.86rem; }
+  thead th { background:var(--surface-2); color:var(--muted); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:10px 12px; text-align:right; border-bottom:2px solid var(--border); white-space:nowrap; }
+  thead th:first-child { text-align:left; }
+  tbody tr { border-bottom:1px solid var(--border-light); }
+  tbody tr:hover { background:#F9F7F4; }
+  tbody td { padding:9px 12px; text-align:right; color:var(--text); }
+  tbody td:first-child { text-align:left; }
+  .product-name { font-weight:600; color:var(--logox-black); }
+  .period-sub { color:var(--muted); font-size:.76rem; padding-left:24px !important; text-align:left !important; font-weight:500; }
+  .fb-product-header td { background:var(--surface-2); font-size:.9rem; padding:10px 12px; border-top:2px solid var(--border); color:var(--logox-blue); font-weight:700; }
+  .scale-row td { background:#FAFAF8; font-size:.79rem; border-top:1px dashed var(--border); color:var(--muted); }
+  .badge { display:inline-block; padding:3px 9px; border-radius:999px; font-size:.7rem; font-weight:700; }
+  .badge.green { background:#E8F5EA; color:var(--green); border:1px solid #C3E6C7; }
+  .badge.amber { background:#FDF3E7; color:#A0522D; border:1px solid #F5CBA7; }
+  .badge.red   { background:#FDEDEC; color:var(--red); border:1px solid #F4A99E; }
+  .badge.gray  { background:#F0EDE8; color:var(--muted); border:1px solid var(--border); }
+  .target-note { font-size:.77rem; color:var(--logox-orange); margin-top:10px; font-weight:500; }
+  .footer { margin-top:48px; border-top:2px solid var(--border); padding-top:20px; font-size:.77rem; color:var(--muted); display:flex; align-items:center; justify-content:space-between; }
+  .footer img { height:32px; opacity:.6; }
+</style>
+</head>
+<body>
+
+<!-- ── Brand Header ── -->
+<div class="report-header">
+  <div class="header-left">
+    <img class="header-logo" src="https://www.thelogox.com/cdn/shop/files/logox-logo.png" alt="LogOX Logo" onerror="this.style.display='none'">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>Performance Dashboard</h1>
+      <div class="subtitle">Facebook &amp; Google Ads · Shopify Sales Analysis &nbsp;·&nbsp; All periods: Mar 1–10 or Feb 1–10</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-date">Generated March 14, 2026</div>
+    <div class="header-badge">Confidential</div>
+  </div>
+</div>
+
+<!-- ── Period Summary ── -->
+<div class="section">
+  <h2>Period Overview</h2>
+  <div class="cards-row">
+        <div class="card summary-card">
+          <div class="card-period">Mar 1–10, 2025</div>
+          <div class="metrics-grid">
+            <div class="metric">
+              <span class="metric-label">Shopify Net Sales</span>
+              <span class="metric-value blue">$28,593</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Ad Spend</span>
+              <span class="metric-value purple">$780</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Google Ad Spend</span>
+              <span class="metric-value purple">$1,007</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Ad Spend</span>
+              <span class="metric-value purple">$1,787</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Conv. Value</span>
+              <span class="metric-value teal">$6,925</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Purchases</span>
+              <span class="metric-value">37</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB ROAS</span>
+              <span class="metric-value green">8.87x</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">MER (FB+Google)</span>
+              <span class="metric-value green">16.0x</span>
+            </div>
+          </div>
+        </div>
+        <div class="card summary-card">
+          <div class="card-period">Feb 1–10, 2026</div>
+          <div class="metrics-grid">
+            <div class="metric">
+              <span class="metric-label">Shopify Net Sales</span>
+              <span class="metric-value blue">$38,012</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Ad Spend</span>
+              <span class="metric-value purple">$5,994</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Google Ad Spend</span>
+              <span class="metric-value purple">$1,462</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Ad Spend</span>
+              <span class="metric-value purple">$7,456</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Conv. Value</span>
+              <span class="metric-value teal">$32,888</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Purchases</span>
+              <span class="metric-value">102</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB ROAS</span>
+              <span class="metric-value green">5.49x</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">MER (FB+Google)</span>
+              <span class="metric-value green">5.1x</span>
+            </div>
+          </div>
+        </div>
+        <div class="card summary-card">
+          <div class="card-period">Mar 1–10, 2026</div>
+          <div class="metrics-grid">
+            <div class="metric">
+              <span class="metric-label">Shopify Net Sales</span>
+              <span class="metric-value blue">$66,570</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Ad Spend</span>
+              <span class="metric-value purple">$11,435</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Google Ad Spend</span>
+              <span class="metric-value purple">$1,452</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Ad Spend</span>
+              <span class="metric-value purple">$12,887</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Conv. Value</span>
+              <span class="metric-value teal">$44,934</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB Purchases</span>
+              <span class="metric-value">128</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">FB ROAS</span>
+              <span class="metric-value green">3.93x</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">MER (FB+Google)</span>
+              <span class="metric-value green">5.2x</span>
+            </div>
+          </div>
+        </div></div>
+</div>
+
+<!-- ── Insights & Recommendations ── -->
+<div class="section">
+  <h2>Insights &amp; Recommendations</h2>
+  <p class="section-sub">Computed automatically from the data above. Priorities ranked by impact.</p>
+  <div class="insights-context"><strong>Note on MER:</strong> MER (Media Efficiency Ratio) = Total Shopify Revenue ÷ Total Ad Spend (Facebook + Google combined). It is <em>not</em> the same as ROAS — it includes all Shopify revenue (organic, email, direct), not just what paid ads claim to have driven. Mar 2025 MER of <strong>16.0x</strong> is still elevated because total ad spend was only <strong>$1,787</strong> ($780 FB + $1,007 Google, with Google Mar 2025 covering only 8 of 10 days) — most of the $28,593 in Shopify sales came from organic/email/direct channels. It is <strong>not a reliable efficiency signal</strong> at that spend level. The meaningful comparison is Feb 2026 (<strong>5.1x MER</strong>) vs Mar 2026 (<strong>5.2x MER</strong>) — essentially flat as total spend scaled from $7,456 to $12,887 while Shopify revenue grew <strong>+75%</strong>. Google accounts for ~$1,450–$1,460 of spend each period, representing roughly 11–20% of total ad spend.</div>
+  <div class="insights-grid">
+    <div>
+      <div class="insight-col-header scale">🚀 Scale — Do More of This</div>
+      
+        <div class="insight-card scale">
+          <div class="insight-title">🚀 TimberOX Dan-D-Lift — Massive Untapped Opportunity</div>
+          <div class="insight-body"><strong>Total Dan-D-Lift spend in Mar 2026: $230</strong> across 2 active creative(s), returning $6,750 in tracked conversions. Best creative: <em>"25.02.26 | Video - 4 | Dan-D-Lift 1to1 revised | T"</em> — <strong>58x ROAS</strong> ($6,620 revenue on $115 spend). At ~$850/unit AOV and only $230 total spend, this product is massively underfunded. Increase the top creative's daily budget immediately and test new audiences.</div>
+        </div>
+        <div class="insight-card scale">
+          <div class="insight-title">🚀 TimberOX Dan-D-Lift — Scale Budget (29.3x ROAS)</div>
+          <div class="insight-body">Generating <strong>29.3x ROAS</strong> on $230 spend in Mar 2026, well above the 3x target. This product has room to absorb more budget before ROAS compresses to breakeven. Test increasing spend 30–50% while monitoring ROAS weekly.</div>
+        </div>
+        <div class="insight-card scale">
+          <div class="insight-title">🚀 TimberOX Dan-D-Lift — Underfunded ($230 spend, 29.3x ROAS)</div>
+          <div class="insight-body">Only <strong>$230 spent</strong> but returning <strong>29.3x ROAS</strong>. This is a signal the audience isn't saturated. Increase budget to at least $300–500 to get a statistically meaningful read, then scale if ROAS holds.</div>
+        </div>
+        <div class="insight-card scale">
+          <div class="insight-title">🚀 The Woodsman Bundle — No Paid Support Despite $1,592 Shopify Sales</div>
+          <div class="insight-body">Generating <strong>$1,592 in Shopify net sales</strong> in Mar 2026 with no active Facebook ads. This revenue is likely organic/email. Test a small FB campaign ($200–500) to see if paid can amplify what's already converting.</div>
+        </div>
+        <div class="insight-card scale">
+          <div class="insight-title">🚀 Best Creative in Mar 2026: 58x ROAS</div>
+          <div class="insight-body"><em>"25.02.26 | Video - 4 | Dan-D-Lift 1to1 revised | Text Variat"</em> (TimberOX Dan-D-Lift) returned <strong>57.6x ROAS</strong> ($6,620 on $115). Duplicate this creative, test new audiences, and increase its budget — it's the current benchmark for what good looks like.</div>
+        </div>
+    </div>
+    <div>
+      <div class="insight-col-header watch">⚠️ Watch — Needs Monitoring</div>
+      
+        <div class="insight-card watch">
+          <div class="insight-title">⚠️ LogOX 3-in-1 MultiTool — ROAS Near Floor (3.64x)</div>
+          <div class="insight-body">Spend grew <strong>+1639%</strong> from Mar 2025 → Mar 2026, and ROAS has compressed to <strong>3.64x</strong> (target: 3.0x). Hold current budget and optimize creatives before scaling further. One bad week could push this below breakeven.</div>
+        </div>
+        <div class="insight-card watch">
+          <div class="insight-title">⚠️ LogOX Forester Package — ROAS Near Floor (3.74x)</div>
+          <div class="insight-body">Spend grew <strong>+2396%</strong> from Mar 2025 → Mar 2026, and ROAS has compressed to <strong>3.74x</strong> (target: 3.0x). Hold current budget and optimize creatives before scaling further. One bad week could push this below breakeven.</div>
+        </div>
+        <div class="insight-card watch">
+          <div class="insight-title">⚠️ $811 in Spend With No Tracked Conversions</div>
+          <div class="insight-body">2 active ads in Mar 2026 show <strong>$0 in reported conversion value</strong>. This may indicate attribution gaps (iOS privacy), long purchase cycles, or truly non-converting ads. Cross-reference against Shopify revenue by date. If Shopify sales drop on days these ads run, pause them.</div>
+        </div>
+    </div>
+    <div>
+      <div class="insight-col-header act">🔴 Act — Fix or Pause</div>
+      
+        <div class="insight-card act">
+          <div class="insight-title">🔴 WoodOX Sling Amazon Campaigns — Untrackable ROAS</div>
+          <div class="insight-body"><strong>$93 in WoodOX Sling ads</strong> are sending traffic to amazon.ca (not the Shopify PDP) with <strong>$0 tracked conversion value</strong>. Facebook cannot track Amazon purchases, so this entire budget appears as 0x ROAS. Note: WoodOX Sling has <em>zero</em> Shopify-destined FB ads in Mar 2026 — all its paid support goes to Amazon. Either switch landing pages to the Shopify PDP to restore attribution, or measure via MER (compare Shopify WoodOX Sling sales on vs. off ad days).</div>
+        </div>
+        <div class="insight-card act">
+          <div class="insight-title">🔴 Fireside Bundle — Below ROAS Target (0.00x on $309 spend)</div>
+          <div class="insight-body">Spending <strong>$309</strong> but only returning <strong>0.00x ROAS</strong> against a 3.0x target. Audit the creative mix — pause underperforming individual ads first (see creative table below). If the best creative still can't reach 3.0x, reduce budget 30% and reallocate to higher-ROAS products.</div>
+        </div>
+        <div class="insight-card act">
+          <div class="insight-title">🔴 CarryOX Gear Bag — Below ROAS Target (1.44x on $247 spend)</div>
+          <div class="insight-body">Spending <strong>$247</strong> but only returning <strong>1.44x ROAS</strong> against a 3.0x target. Audit the creative mix — pause underperforming individual ads first (see creative table below). If the best creative still can't reach 3.0x, reduce budget 30% and reallocate to higher-ROAS products.</div>
+        </div>
+        <div class="insight-card act">
+          <div class="insight-title">🔴 LogOX Hauler — Below ROAS Target (0.00x on $191 spend)</div>
+          <div class="insight-body">Spending <strong>$191</strong> but only returning <strong>0.00x ROAS</strong> against a 3.0x target. Audit the creative mix — pause underperforming individual ads first (see creative table below). If the best creative still can't reach 3.0x, reduce budget 30% and reallocate to higher-ROAS products.</div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Top/Worst Creatives ── -->
+<div class="section">
+  <h2>Creative Performance — Mar 2026</h2>
+  <p class="section-sub">Individual ad-level ROAS. Minimum $20 spend included. Use these to guide creative decisions.</p>
+  <div class="charts-row">
+    <div class="card table-wrap">
+      <h2 style="margin-bottom:12px;color:var(--green);font-size:1rem">🏆 Top Performing Creatives</h2>
+      <table>
+        <thead><tr><th>Ad Name</th><th>Product</th><th>Spend</th><th>Conv. Value</th><th>Purchases</th><th>ROAS</th></tr></thead>
+        <tbody><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="25.02.26 | Video - 4 | Dan-D-Lift 1to1 revised | Text Variation - 1 | LP : PDP">25.02.26 | Video - 4 | Dan-D-Lift 1to1 revised | Text V…</td>
+          <td>TimberOX Dan-D-Lift</td>
+          <td>$115</td>
+          <td>$6,620</td>
+          <td>10</td>
+          <td style="color:#10b981;font-weight:700">57.61x</td>
+        </tr><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="3-in-1 Forestry MultiTool Static">3-in-1 Forestry MultiTool Static</td>
+          <td>LogOX 3-in-1 MultiTool</td>
+          <td>$212</td>
+          <td>$2,312</td>
+          <td>9</td>
+          <td style="color:#10b981;font-weight:700">10.89x</td>
+        </tr><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="Vid FB1 937590858387610">Vid FB1 937590858387610</td>
+          <td>LogOX 3-in-1 MultiTool</td>
+          <td>$310</td>
+          <td>$2,063</td>
+          <td>7</td>
+          <td style="color:#10b981;font-weight:700">6.65x</td>
+        </tr><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="17.11.25 | Video - 3 | LogOX 3-in-1 | Text Variation - 2 | LP - PDP">17.11.25 | Video - 3 | LogOX 3-in-1 | Text Variation - …</td>
+          <td>LogOX 3-in-1 MultiTool</td>
+          <td>$237</td>
+          <td>$1,448</td>
+          <td>4</td>
+          <td style="color:#10b981;font-weight:700">6.10x</td>
+        </tr><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="Video | Site B | Austin  - 816341450512552">Video | Site B | Austin  - 816341450512552</td>
+          <td>LogOX 3-in-1 MultiTool</td>
+          <td>$1,804</td>
+          <td>$10,858</td>
+          <td>19</td>
+          <td style="color:#10b981;font-weight:700">6.02x</td>
+        </tr></tbody>
+      </table>
+    </div>
+    <div class="card table-wrap">
+      <h2 style="margin-bottom:12px;color:var(--red);font-size:1rem">🔴 Underperforming Creatives (Pause Candidates)</h2>
+      <table>
+        <thead><tr><th>Ad Name</th><th>Product</th><th>Spend</th><th>Conv. Value</th><th>Purchases</th><th>ROAS</th></tr></thead>
+        <tbody><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="Video | Site B | Austin  - 711679707645394">Video | Site B | Austin  - 711679707645394</td>
+          <td>LogOX 3-in-1 MultiTool</td>
+          <td>$503</td>
+          <td>$0</td>
+          <td>0</td>
+          <td style="color:#ef4444;font-weight:700">0.00x</td>
+        </tr><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="25.02.26 | Static - 9 | The Fireside Bundle | Text Variation - 1 | LP : PDP">25.02.26 | Static - 9 | The Fireside Bundle | Text Vari…</td>
+          <td>Fireside Bundle</td>
+          <td>$309</td>
+          <td>$0</td>
+          <td>0</td>
+          <td style="color:#ef4444;font-weight:700">0.00x</td>
+        </tr><tr>
+          <td class="product-name" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="09.12.25 | Video -2 | LogOX 3-in-1 Forestry MultiTool | Text Variation - 1 LP : Multitool PDP">09.12.25 | Video -2 | LogOX 3-in-1 Forestry MultiTool |…</td>
+          <td>LogOX 3-in-1 MultiTool</td>
+          <td>$1,698</td>
+          <td>$3,494</td>
+          <td>14</td>
+          <td style="color:#ef4444;font-weight:700">2.06x</td>
+        </tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Shopify Sales ── -->
+<div class="section">
+  <h2>Shopify Net Sales by Product</h2>
+  <div class="chart-card full"><canvas id="shopifyChart"></canvas></div>
+</div>
+
+<!-- ── FB Performance Charts ── -->
+<div class="section">
+  <h2>Facebook Ad Performance by Product</h2>
+  <div class="charts-row">
+    <div class="chart-card"><h2>Ad Spend</h2><canvas id="fbSpendChart"></canvas></div>
+    <div class="chart-card">
+      <h2>ROAS <span style="color:var(--amber);font-size:.8rem">(target 3x)</span></h2>
+      <canvas id="roasChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── Scaling Analysis ── -->
+<div class="section">
+  <h2>Scaling Analysis: Mar 2025 → Mar 2026</h2>
+  <div class="chart-card full" style="margin-bottom:20px">
+    <h2>Spend Growth vs Revenue Growth</h2>
+    <canvas id="scaleChart"></canvas>
+    <p class="target-note">Green bars above purple = revenue growing faster than spend = scaling efficiently. ROAS target: 3x.</p>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr>
+        <th>Product</th><th>Spend Mar'25</th><th>Spend Mar'26</th><th>Spend Δ%</th>
+        <th>Conv. Mar'25</th><th>Conv. Mar'26</th><th>Conv. Δ%</th>
+        <th>ROAS Mar'25</th><th>ROAS Mar'26</th><th>Verdict</th>
+      </tr></thead>
+      <tbody><tr>
+          <td class="product-name">LogOX 3-in-1 MultiTool</td>
+          <td>$498</td><td>$8,670</td>
+          <td style="color:#10b981;font-weight:600">+1639.4%</td>
+          <td>$5,481</td><td>$31,531</td>
+          <td style="color:#10b981;font-weight:600">+475.3%</td>
+          <td style="color:#10b981">10.99x</td>
+          <td style="color:#10b981">3.64x</td>
+          <td><span class='badge amber'>Scaling (Watch)</span></td>
+        </tr><tr>
+          <td class="product-name">LogOX Forester Package</td>
+          <td>$68</td><td>$1,685</td>
+          <td style="color:#10b981;font-weight:600">+2395.7%</td>
+          <td>$823</td><td>$6,297</td>
+          <td style="color:#10b981;font-weight:600">+665.0%</td>
+          <td style="color:#10b981">12.19x</td>
+          <td style="color:#10b981">3.74x</td>
+          <td><span class='badge amber'>Scaling (Watch)</span></td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Shopify Detail Table ── -->
+<div class="section">
+  <h2>Shopify Net Sales — All Products</h2>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Product</th><th>Mar 2025</th><th>Feb 2026</th><th>Mar 2026</th><th>YoY (Mar)</th></tr></thead>
+      <tbody><tr>
+          <td class="product-name">LogOX 3-in-1 MultiTool</td>
+          <td>$13,929</td>
+          <td>$13,813</td>
+          <td>$31,285</td>
+          <td style="color:#10b981;font-weight:600">+124.6%</td>
+        </tr><tr>
+          <td class="product-name">TimberOX Summit 30-Ton</td>
+          <td>$5,995</td>
+          <td>$5,995</td>
+          <td>$17,985</td>
+          <td style="color:#10b981;font-weight:600">+200.0%</td>
+        </tr><tr>
+          <td class="product-name">LogOX Forester Package</td>
+          <td>$4,128</td>
+          <td>$4,515</td>
+          <td>$7,475</td>
+          <td style="color:#10b981;font-weight:600">+81.1%</td>
+        </tr><tr>
+          <td class="product-name">LogOX Hauler</td>
+          <td>$1,150</td>
+          <td>$1,884</td>
+          <td>$4,998</td>
+          <td style="color:#10b981;font-weight:600">+334.6%</td>
+        </tr><tr>
+          <td class="product-name">The Woodsman Bundle</td>
+          <td>$319</td>
+          <td>$658</td>
+          <td>$1,592</td>
+          <td style="color:#10b981;font-weight:600">+399.1%</td>
+        </tr><tr>
+          <td class="product-name">TimberOX Dan-D-Lift</td>
+          <td>$0</td>
+          <td>$5,125</td>
+          <td>$765</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">PickOX Pickaroon</td>
+          <td>$417</td>
+          <td>$522</td>
+          <td>$585</td>
+          <td style="color:#10b981;font-weight:600">+40.2%</td>
+        </tr><tr>
+          <td class="product-name">Granberg Precision Grinder (12V) Bar Mounted Chainsaw Sharpener G1012XT</td>
+          <td>$109</td>
+          <td>$0</td>
+          <td>$327</td>
+          <td style="color:#10b981;font-weight:600">+200.0%</td>
+        </tr><tr>
+          <td class="product-name">TW Series 4-Way Wedge</td>
+          <td>$266</td>
+          <td>$0</td>
+          <td>$295</td>
+          <td style="color:#10b981;font-weight:600">+11.1%</td>
+        </tr><tr>
+          <td class="product-name">WoodOX Sling</td>
+          <td>$270</td>
+          <td>$2,581</td>
+          <td>$268</td>
+          <td style="color:#ef4444;font-weight:600">-0.7%</td>
+        </tr><tr>
+          <td class="product-name">Bigfoot Timberjack Attachment and Swing-Lock Pins</td>
+          <td>$0</td>
+          <td>$100</td>
+          <td>$165</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">LogOX Professional Work Belt</td>
+          <td>$0</td>
+          <td>$45</td>
+          <td>$135</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">CarryOX Gear Bag</td>
+          <td>$307</td>
+          <td>$424</td>
+          <td>$123</td>
+          <td style="color:#ef4444;font-weight:600">-59.8%</td>
+        </tr><tr>
+          <td class="product-name">LogOX Hauler Holster</td>
+          <td>$77</td>
+          <td>$212</td>
+          <td>$104</td>
+          <td style="color:#10b981;font-weight:600">+34.3%</td>
+        </tr><tr>
+          <td class="product-name">The Woodhaven 2ft Firewood Rack</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td>$94</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">LogOX Hauler Upgrade Package</td>
+          <td>$285</td>
+          <td>$271</td>
+          <td>$85</td>
+          <td style="color:#ef4444;font-weight:600">-70.0%</td>
+        </tr><tr>
+          <td class="product-name">The Mingo Marker (All Wheel Bundle)</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td>$61</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">The Mingo Bundle</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td>$60</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">PICKOX TIP REPLACEMENT</td>
+          <td>$6</td>
+          <td>$14</td>
+          <td>$47</td>
+          <td style="color:#10b981;font-weight:600">+700.7%</td>
+        </tr><tr>
+          <td class="product-name">Set of (3) LogOX Swing-Lock Connection Pins</td>
+          <td>$36</td>
+          <td>$64</td>
+          <td>$47</td>
+          <td style="color:#10b981;font-weight:600">+30.7%</td>
+        </tr><tr>
+          <td class="product-name">Chain Locker Original</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td>$37</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">The Mingo Marker</td>
+          <td>$0</td>
+          <td>$152</td>
+          <td>$37</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">Fireside Bundle</td>
+          <td>$0</td>
+          <td>$229</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">The Woodhaven 8ft Large Crescent Firewood Rack</td>
+          <td>$0</td>
+          <td>$459</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">The Woodhaven 8ft Firewood Rack</td>
+          <td>$0</td>
+          <td>$279</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">The WoodOX Bundle</td>
+          <td>$0</td>
+          <td>$340</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">SawHaul Snap-Lok Rotating Mount for Tractors</td>
+          <td>$0</td>
+          <td>$255</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">Hi-Vis GripOX Premium Leather Work Gloves</td>
+          <td>$108</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td style="color:#ef4444;font-weight:600">-100.0%</td>
+        </tr><tr>
+          <td class="product-name">A2 GenOX Bushcraft Knife</td>
+          <td>$564</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td style="color:#ef4444;font-weight:600">-100.0%</td>
+        </tr><tr>
+          <td class="product-name">Candle and Lamp Oil - 4 pack</td>
+          <td>$0</td>
+          <td>$56</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">Mingo Marker Trigger</td>
+          <td>$0</td>
+          <td>$20</td>
+          <td>$0</td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr><tr>
+          <td class="product-name">Hearth Bin Adjustable Firewood Rack</td>
+          <td>$150</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td style="color:#ef4444;font-weight:600">-100.0%</td>
+        </tr><tr>
+          <td class="product-name">TimberOX Summit Tongue Jack</td>
+          <td>$135</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td style="color:#ef4444;font-weight:600">-100.0%</td>
+        </tr><tr>
+          <td class="product-name">Granberg Alaskan Winch -G478</td>
+          <td>$136</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td style="color:#ef4444;font-weight:600">-100.0%</td>
+        </tr><tr>
+          <td class="product-name">SawHaul Snap-Lok Rotating Mount Base with Scabbard</td>
+          <td>$207</td>
+          <td>$0</td>
+          <td>$0</td>
+          <td style="color:#ef4444;font-weight:600">-100.0%</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── FB Detail Table ── -->
+<div class="section">
+  <h2>Facebook Ads — Full Breakdown by Product &amp; Period</h2>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Product</th><th>Period</th><th>Spend</th><th>Conv. Value</th><th>Purchases</th><th>ROAS</th></tr></thead>
+      <tbody><tr class="fb-product-header"><td colspan="6" class="product-name">LogOX 3-in-1 MultiTool</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>$498</td>
+              <td>$5,481</td>
+              <td>21</td>
+              <td style="color:#10b981;font-weight:600">10.99x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$4,222</td>
+              <td>$18,718</td>
+              <td>59</td>
+              <td style="color:#10b981;font-weight:600">4.43x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$8,670</td>
+              <td>$31,531</td>
+              <td>95</td>
+              <td style="color:#10b981;font-weight:600">3.64x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#10b981">+1639.4%</td>
+              <td style="color:#10b981">+475.3%</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">LogOX Forester Package</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>$68</td>
+              <td>$823</td>
+              <td>4</td>
+              <td style="color:#10b981;font-weight:600">12.19x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$804</td>
+              <td>$4,015</td>
+              <td>16</td>
+              <td style="color:#10b981;font-weight:600">4.99x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$1,685</td>
+              <td>$6,297</td>
+              <td>19</td>
+              <td style="color:#10b981;font-weight:600">3.74x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#10b981">+2395.7%</td>
+              <td style="color:#10b981">+665.0%</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">Fireside Bundle</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$309</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#ef4444;font-weight:600">0.00x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">CarryOX Gear Bag</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$247</td>
+              <td>$356</td>
+              <td>1</td>
+              <td style="color:#ef4444;font-weight:600">1.44x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">TimberOX Dan-D-Lift</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$230</td>
+              <td>$6,750</td>
+              <td>13</td>
+              <td style="color:#10b981;font-weight:600">29.33x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">LogOX Hauler</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$191</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#ef4444;font-weight:600">0.00x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">Amazon (CA)</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$93</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#ef4444;font-weight:600">0.00x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">TimberOX Summit 30-Ton</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$36</td>
+              <td>$7,156</td>
+              <td>2</td>
+              <td style="color:#10b981;font-weight:600">197.63x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$9</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#ef4444;font-weight:600">0.00x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">Hearth Bin</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$7</td>
+              <td>$185</td>
+              <td>1</td>
+              <td style="color:#10b981;font-weight:600">24.70x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>$1</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#ef4444;font-weight:600">0.00x</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">The Woodsman Bundle</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$5</td>
+              <td>$77</td>
+              <td>1</td>
+              <td style="color:#10b981;font-weight:600">15.57x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#94a3b8">—</td>
+              <td style="color:#94a3b8">—</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">General / DPA</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>$147</td>
+              <td>$278</td>
+              <td>11</td>
+              <td style="color:#ef4444;font-weight:600">1.88x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$111</td>
+              <td>$1,077</td>
+              <td>7</td>
+              <td style="color:#10b981;font-weight:600">9.68x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#ef4444">-100.0%</td>
+              <td style="color:#ef4444">-100.0%</td>
+              <td>—</td><td>—</td>
+            </tr><tr class="fb-product-header"><td colspan="6" class="product-name">WoodOX Sling</td></tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2025</td>
+              <td>$67</td>
+              <td>$344</td>
+              <td>1</td>
+              <td style="color:#10b981;font-weight:600">5.14x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Feb 2026</td>
+              <td>$808</td>
+              <td>$1,659</td>
+              <td>16</td>
+              <td style="color:#ef4444;font-weight:600">2.05x</td>
+            </tr><tr class="fb-data-row">
+              <td></td>
+              <td class="period-sub">Mar 2026</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:#94a3b8;font-weight:600">—</td>
+            </tr><tr class="scale-row">
+              <td></td><td class="period-sub" style="color:#94a3b8;font-style:italic">YoY (Mar)</td>
+              <td style="color:#ef4444">-100.0%</td>
+              <td style="color:#ef4444">-100.0%</td>
+              <td>—</td><td>—</td>
+            </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Facebook + Google Shopping — Combined Product-Level ── -->
+<div class="section">
+  <h2>Facebook + Google Shopping — Combined Product-Level Ad Performance</h2>
+  <p class="section-sub" style="margin-bottom:16px">Google figures are from Google Shopping product listings only (not total Google Ads; period-level totals are in the Period Overview above). Only products present in the Facebook table are shown here.</p>
+
+  <div class="charts-row" style="margin-bottom:24px">
+    <div class="chart-card">
+      <h2 style="font-size:.9rem;margin-bottom:12px">Combined Spend — Mar 2026 <span style="font-size:.72rem;color:var(--muted);font-weight:500">(FB + Google Shopping stacked)</span></h2>
+      <canvas id="combinedSpendChart26"></canvas>
+    </div>
+    <div class="chart-card">
+      <h2 style="font-size:.9rem;margin-bottom:12px">Combined ROAS — Mar 2026 <span style="font-size:.72rem;color:var(--muted);font-weight:500">(3x target line · 30-Ton = 210x, capped at 35x)</span></h2>
+      <canvas id="combinedRoasChart26"></canvas>
+    </div>
+  </div>
+
+  <div class="card table-wrap">
+    <h2 style="font-size:.9rem;margin-bottom:14px;color:var(--logox-blue)">Full Combined Breakdown — All Three Periods</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Period</th>
+          <th>FB Spend</th>
+          <th>Google Spend</th>
+          <th>Total Spend</th>
+          <th>FB Conv. Value</th>
+          <th>Google Conv. Value</th>
+          <th>Total Conv. Value</th>
+          <th>Combined ROAS</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- LogOX 3-in-1 MultiTool -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">LogOX 3-in-1 MultiTool</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td>$498</td><td>$173</td><td><strong>$671</strong></td>
+          <td>$5,481</td><td>$844</td><td><strong>$6,325</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">9.42x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>$4,222</td><td>$359</td><td><strong>$4,581</strong></td>
+          <td>$18,718</td><td>$1,304</td><td><strong>$20,022</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">4.37x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$8,670</td><td>$134</td><td><strong>$8,804</strong></td>
+          <td>$31,531</td><td>$2,497</td><td><strong>$34,028</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">3.87x</td>
+        </tr>
+
+        <!-- LogOX Forester Package -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">LogOX Forester Package</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td>$68</td><td>$14</td><td><strong>$82</strong></td>
+          <td>$823</td><td>—</td><td><strong>$823</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">10.04x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>$804</td><td>$40</td><td><strong>$844</strong></td>
+          <td>$4,015</td><td>—</td><td><strong>$4,015</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">4.76x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$1,685</td><td>$61</td><td><strong>$1,746</strong></td>
+          <td>$6,297</td><td>$360</td><td><strong>$6,657</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">3.81x</td>
+        </tr>
+
+        <!-- LogOX Hauler -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">LogOX Hauler</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td>—</td><td>$63</td><td><strong>$63</strong></td>
+          <td>—</td><td>$473</td><td><strong>$473</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">7.56x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>—</td><td>$128</td><td><strong>$128</strong></td>
+          <td>—</td><td>$594</td><td><strong>$594</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">4.65x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$191</td><td>$51</td><td><strong>$242</strong></td>
+          <td>—</td><td>$542</td><td><strong>$542</strong></td>
+          <td style="color:#C85C28;font-weight:600">2.24x</td>
+        </tr>
+
+        <!-- TimberOX Dan-D-Lift -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">TimberOX Dan-D-Lift</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td colspan="7" style="color:var(--muted);text-align:left">No spend on either channel</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td colspan="7" style="color:var(--muted);text-align:left">No spend on either channel</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$230</td><td>$35</td><td><strong>$265</strong></td>
+          <td>$6,750</td><td>$277</td><td><strong>$7,027</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">26.52x</td>
+        </tr>
+
+        <!-- TimberOX Summit 30-Ton -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">TimberOX Summit 30-Ton Log Splitter</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td colspan="7" style="color:var(--muted);text-align:left">No spend on either channel</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>$36</td><td>—</td><td><strong>$36</strong></td>
+          <td>$7,156</td><td>—</td><td><strong>$7,156</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">197.6x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$9</td><td>$27</td><td><strong>$36</strong></td>
+          <td>—</td><td>$7,408</td><td><strong>$7,408</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">209.8x</td>
+        </tr>
+
+        <!-- WoodOX Sling -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">WoodOX Sling</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td>$67</td><td>&lt;$1</td><td><strong>$67</strong></td>
+          <td>$344</td><td>—</td><td><strong>$344</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">5.13x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>$808</td><td>$10</td><td><strong>$818</strong></td>
+          <td>$1,659</td><td>—</td><td><strong>$1,659</strong></td>
+          <td style="color:#C85C28;font-weight:600">2.03x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td colspan="7" style="color:var(--muted);text-align:left">No spend on either channel</td>
+        </tr>
+
+        <!-- Fireside Bundle -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">Fireside Bundle</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td colspan="7" style="color:var(--muted);text-align:left">No spend on either channel</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>—</td><td>$9</td><td><strong>$9</strong></td>
+          <td>—</td><td>—</td><td><strong>—</strong></td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$309</td><td>—</td><td><strong>$309</strong></td>
+          <td>—</td><td>—</td><td><strong>—</strong></td>
+          <td style="color:#C0392B;font-weight:600">0.00x</td>
+        </tr>
+
+        <!-- CarryOX Gear Bag -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">CarryOX Gear Bag</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td>—</td><td>$3</td><td><strong>$3</strong></td>
+          <td>—</td><td>—</td><td><strong>—</strong></td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>—</td><td>$7</td><td><strong>$7</strong></td>
+          <td>—</td><td>—</td><td><strong>—</strong></td>
+          <td style="color:#94a3b8;font-weight:600">—</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$247</td><td>—</td><td><strong>$247</strong></td>
+          <td>$356</td><td>—</td><td><strong>$356</strong></td>
+          <td style="color:#C85C28;font-weight:600">1.44x</td>
+        </tr>
+
+        <!-- The Woodsman Bundle -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">The Woodsman Bundle</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td>—</td><td>$2</td><td><strong>$2</strong></td>
+          <td>—</td><td>$329</td><td><strong>$329</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">141.8x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>$5</td><td>—</td><td><strong>$5</strong></td>
+          <td>$77</td><td>—</td><td><strong>$77</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">15.57x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>—</td><td>$18</td><td><strong>$18</strong></td>
+          <td>—</td><td>—</td><td><strong>—</strong></td>
+          <td style="color:#C0392B;font-weight:600">0.00x</td>
+        </tr>
+
+        <!-- Hearth Bin -->
+        <tr class="fb-product-header"><td colspan="9" class="product-name">Hearth Bin</td></tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2025</td>
+          <td colspan="7" style="color:var(--muted);text-align:left">No spend on either channel</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Feb 2026</td>
+          <td>$7</td><td>—</td><td><strong>$7</strong></td>
+          <td>$185</td><td>—</td><td><strong>$185</strong></td>
+          <td style="color:#2A7A3B;font-weight:600">24.70x</td>
+        </tr>
+        <tr class="fb-data-row">
+          <td></td><td class="period-sub">Mar 2026</td>
+          <td>$1</td><td>—</td><td><strong>$1</strong></td>
+          <td>—</td><td>—</td><td><strong>—</strong></td>
+          <td style="color:#C0392B;font-weight:600">0.00x</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <div>
+    <strong style="color:var(--logox-black)">LogOX</strong> · Performance Dashboard · Generated March 14, 2026<br>
+    <span style="color:var(--logox-orange);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:.7rem">American Tools for Woodsmen®</span>
+  </div>
+  <img src="https://www.thelogox.com/cdn/shop/files/logox-logo.png" alt="LogOX" onerror="this.style.display='none'">
+</div>
+
+<script>
+Chart.defaults.color='#6B6460';
+Chart.defaults.borderColor='#E0DBD5';
+
+new Chart(document.getElementById('shopifyChart'),{
+  type:'bar',
+  data:{labels:["LogOX 3-in-1 MultiTool", "TimberOX Summit 30-Ton", "LogOX Forester Package", "LogOX Hauler", "The Woodsman Bundle", "TimberOX Dan-D-Lift", "PickOX Pickaroon", "Granberg Precision Grinder (12V) Bar Mounted Chainsaw Sharpener G1012XT"],datasets:[{"label": "Mar 2025", "data": [13929.44, 5995.0, 4127.5, 1150.0, 318.95, 0.0, 417.33, 109.0], "backgroundColor": "#1A5FA8", "borderRadius": 4}, {"label": "Feb 2026", "data": [13812.74, 5995.0, 4515.36, 1884.15, 657.9, 5125.0, 521.84, 0.0], "backgroundColor": "#C85C28", "borderRadius": 4}, {"label": "Mar 2026", "data": [31285.11, 17985.0, 7474.86, 4997.5, 1591.86, 764.99, 585.15, 327.0], "backgroundColor": "#2A7A3B", "borderRadius": 4}]},
+  options:{responsive:true,plugins:{legend:{labels:{color:'#1C1C1C'}}},
+    scales:{
+      x:{ticks:{color:'#6B6460',maxRotation:25},grid:{color:'#E0DBD5'}},
+      y:{ticks:{color:'#6B6460',callback:v=>'$'+v.toLocaleString()},grid:{color:'#E0DBD5'}}
+    }
+  }
+});
+
+new Chart(document.getElementById('fbSpendChart'),{
+  type:'bar',
+  data:{labels:["LogOX 3-in-1 MultiTool", "LogOX Forester Package", "Fireside Bundle", "CarryOX Gear Bag", "TimberOX Dan-D-Lift", "LogOX Hauler", "TimberOX Summit 30-Ton", "Hearth Bin"],datasets:[{"label": "Mar 2025", "data": [498.48, 67.52, 0, 0, 0, 0, 0, 0], "backgroundColor": "#1A5FA8", "borderRadius": 4}, {"label": "Feb 2026", "data": [4222.48, 803.84, 0, 0, 0, 0, 36.21, 7.49], "backgroundColor": "#C85C28", "borderRadius": 4}, {"label": "Mar 2026", "data": [8670.39, 1685.13, 308.69, 246.72, 230.13, 191.28, 8.78, 1.26], "backgroundColor": "#2A7A3B", "borderRadius": 4}]},
+  options:{responsive:true,plugins:{legend:{labels:{color:'#1C1C1C'}}},
+    scales:{
+      x:{ticks:{color:'#6B6460',maxRotation:25},grid:{color:'#E0DBD5'}},
+      y:{ticks:{color:'#6B6460',callback:v=>'$'+v.toLocaleString()},grid:{color:'#E0DBD5'}}
+    }
+  }
+});
+
+new Chart(document.getElementById('roasChart'),{
+  type:'bar',
+  data:{labels:["LogOX 3-in-1 MultiTool", "LogOX Forester Package", "Fireside Bundle", "CarryOX Gear Bag", "TimberOX Dan-D-Lift", "LogOX Hauler", "TimberOX Summit 30-Ton", "Hearth Bin"],datasets:[{"label": "Mar 2025", "data": [10.99, 12.19, 0, 0, 0, 0, 0, 0], "backgroundColor": "#1A5FA8", "borderRadius": 4}, {"label": "Feb 2026", "data": [4.43, 4.99, 0, 0, 0, 0, 197.63, 24.7], "backgroundColor": "#C85C28", "borderRadius": 4}, {"label": "Mar 2026", "data": [3.64, 3.74, 0.0, 1.44, 29.33, 0.0, 0.0, 0.0], "backgroundColor": "#2A7A3B", "borderRadius": 4}]},
+  plugins:[{
+    id:'roasLine',
+    afterDraw(chart){
+      const {ctx,chartArea:{left,right},scales:{y}}=chart;
+      const yp=y.getPixelForValue(3.0);
+      ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#C85C28';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(left,yp);ctx.lineTo(right,yp);ctx.stroke();ctx.restore();
+    }
+  }],
+  options:{responsive:true,plugins:{legend:{labels:{color:'#1C1C1C'}},
+    tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(2)+'x'}}},
+    scales:{
+      x:{ticks:{color:'#6B6460',maxRotation:25},grid:{color:'#E0DBD5'}},
+      y:{ticks:{color:'#6B6460',callback:v=>v.toFixed(1)+'x'},grid:{color:'#E0DBD5'}}
+    }
+  }
+});
+
+new Chart(document.getElementById('scaleChart'),{
+  type:'bar',
+  data:{
+    labels:["LogOX 3-in-1 MultiTool", "LogOX Forester Package"],
+    datasets:[
+      {label:'Spend Growth %',data:[1639.4, 2395.7],backgroundColor:'#1A5FA8',borderRadius:4},
+      {label:'Conv. Revenue Growth %',data:[475.3, 665.0],backgroundColor:'#2A7A3B',borderRadius:4}
+    ]
+  },
+  options:{responsive:true,plugins:{legend:{labels:{color:'#1C1C1C'}}},
+    scales:{
+      x:{ticks:{color:'#6B6460',maxRotation:25},grid:{color:'#E0DBD5'}},
+      y:{ticks:{color:'#6B6460',callback:v=>v+'%'},grid:{color:'#E0DBD5'}}
+    }
+  }
+});
+
+// ── Combined Spend Chart — Mar 2026 (FB + Google Shopping stacked) ──
+new Chart(document.getElementById('combinedSpendChart26'),{
+  type:'bar',
+  data:{
+    labels:['LogOX 3-in-1 MultiTool','LogOX Forester Package','Fireside Bundle','CarryOX Gear Bag','TimberOX Dan-D-Lift','LogOX Hauler','TimberOX Summit 30-Ton','Woodsman Bundle','Hearth Bin'],
+    datasets:[
+      {label:'FB Spend',data:[8670.39,1685.13,308.69,246.72,230.13,191.28,8.78,0,1.26],backgroundColor:'#1A5FA8',borderRadius:4},
+      {label:'Google Shopping',data:[133.72,60.92,0,0,34.91,50.80,26.53,17.93,0],backgroundColor:'#C85C28',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:'#1C1C1C'}}},
+    scales:{
+      x:{stacked:true,ticks:{color:'#6B6460',maxRotation:30},grid:{color:'#E0DBD5'}},
+      y:{stacked:true,ticks:{color:'#6B6460',callback:v=>'$'+v.toLocaleString()},grid:{color:'#E0DBD5'}}
+    }
+  }
+});
+
+// ── Combined ROAS Chart — Mar 2026 (TimberOX Summit capped at 35x; actual 209.8x) ──
+const _cRoasActual=[3.87,3.81,0,1.44,26.52,2.24,209.8,0,0];
+const _cRoasDisplay=[3.87,3.81,0,1.44,26.52,2.24,35,0,0];
+const _cRoasColors=['#2A7A3B','#2A7A3B','#C0392B','#C85C28','#2A7A3B','#C85C28','#2A7A3B','#C0392B','#C0392B'];
+new Chart(document.getElementById('combinedRoasChart26'),{
+  type:'bar',
+  data:{
+    labels:['LogOX 3-in-1','LogOX Forester','Fireside Bundle','CarryOX','Dan-D-Lift','LogOX Hauler','30-Ton*','Woodsman','Hearth Bin'],
+    datasets:[{label:'Combined ROAS',data:_cRoasDisplay,backgroundColor:_cRoasColors,borderRadius:4}]
+  },
+  plugins:[{
+    id:'cRoasLine',
+    afterDraw(chart){
+      const{ctx,chartArea:{left,right},scales:{y}}=chart;
+      const yp=y.getPixelForValue(3.0);
+      ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#C85C28';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(left,yp);ctx.lineTo(right,yp);ctx.stroke();ctx.restore();
+    }
+  }],
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>'Combined ROAS: '+_cRoasActual[ctx.dataIndex].toFixed(2)+'x'+(ctx.dataIndex===6?' (capped — actual 209.8x)':'')}}
+    },
+    scales:{
+      x:{ticks:{color:'#6B6460',maxRotation:30},grid:{color:'#E0DBD5'}},
+      y:{min:0,max:35,ticks:{color:'#6B6460',callback:v=>v+'x'},grid:{color:'#E0DBD5'}}
+    }
+  }
+});
+</script>
+</body>
+</html>
