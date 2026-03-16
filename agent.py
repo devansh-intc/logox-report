@@ -9,9 +9,13 @@ Usage:
 
 import anyio
 import subprocess
+import shutil
+import os
 from datetime import datetime
 from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 import config
+
+PAGES_DIR = "/Users/devan/Desktop/Claude Code Agents/pages"
 
 # Build output filename from client name + today's date
 # e.g. reports/Shopify_2026-03-13.html
@@ -71,10 +75,21 @@ async def main():
             print("\nPushing to GitHub...")
             try:
                 repo_dir = "/Users/devan/Desktop/Claude Code Agents/Shopify Product Data Analysis"
+                # Push full project (private repo — all files)
                 subprocess.run(["git", "add", "-A"], cwd=repo_dir, check=True)
                 subprocess.run(["git", "commit", "-m", f"Add report: {output_file}"], cwd=repo_dir, check=True)
                 subprocess.run(["git", "push", "full-project", "main"], cwd=repo_dir, check=True)
-                print("GitHub updated.")
+                print("Full project repo updated.")
+
+                # Deploy to public GitHub Pages as {client-slug}/index.html
+                client_slug = config.CLIENT_NAME.lower().replace(" ", "-").replace("'", "")
+                pages_client_dir = os.path.join(PAGES_DIR, client_slug)
+                os.makedirs(pages_client_dir, exist_ok=True)
+                shutil.copy(output_file, os.path.join(pages_client_dir, "index.html"))
+                subprocess.run(["git", "add", "-A"], cwd=PAGES_DIR, check=True)
+                subprocess.run(["git", "commit", "-m", f"Deploy {config.CLIENT_NAME} report"], cwd=PAGES_DIR, check=True)
+                subprocess.run(["git", "push", "origin", "main"], cwd=PAGES_DIR, check=True)
+                print(f"Live URL: https://devansh-intc.github.io/reports/{client_slug}/")
             except subprocess.CalledProcessError as e:
                 print(f"GitHub push failed: {e}")
 
