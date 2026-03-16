@@ -32,7 +32,7 @@ Shopify Product Data Analysis/
 
 ## Primary Workflow (Agent)
 
-1. Drop client CSV files into `data/raw/` or a named folder e.g. `data/brand-x/`
+1. Drop client CSV files into a named folder e.g. `data/LogOX/` or `data/BrandName/`
 2. Edit `config.py` — set client name, data folder, excluded IDs, and any custom notes
 3. Run the agent:
 
@@ -42,6 +42,8 @@ python3.11 agent.py
 ```
 
 Output: `reports/{ClientName}_{date}.html`
+
+The agent automatically commits and pushes all changes to GitHub when done (remote: `full-project`).
 
 ## config.py Fields
 
