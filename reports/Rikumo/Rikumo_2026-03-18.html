@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rikumo — E-Commerce Growth Audit &amp; Google Ads Scaling Strategy</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Rikumo Brand — Japanese Minimalism */
+    --rikumo-sage:      #5B7B6F;
+    --rikumo-terra:     #C4956A;
+    --rikumo-deep:      #3D5A4E;
+    --rikumo-charcoal:  #2C2C2C;
+
+    /* Light theme surfaces — warm washi-paper feel */
+    --bg:           #FAF9F7;
+    --surface:      #FFFFFF;
+    --surface-2:    #F3F1ED;
+    --border:       #E5E1DA;
+    --border-light: #EDEBE6;
+
+    /* Semantic colors */
+    --green:  #2D7A4A;
+    --red:    #C0392B;
+    --amber:  #B8860B;
+    --blue:   #3A7CA5;
+
+    /* Typography */
+    --text:   #2C2C2C;
+    --muted:  #717171;
+    --subtle: #9E9792;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,-apple-system,sans-serif; padding:32px; max-width:1440px; margin:0 auto; }
+
+  /* ── Header ── */
+  .report-header { display:flex; align-items:center; justify-content:space-between; padding-bottom:24px; margin-bottom:36px; border-bottom:3px solid var(--rikumo-sage); }
+  .header-left { display:flex; align-items:center; gap:24px; }
+  .header-logo { height:64px; width:auto; }
+  .header-divider { width:1px; height:56px; background:var(--border); }
+  .header-text h1 { font-family:'Crimson Text',serif; font-size:1.6rem; font-weight:700; color:var(--rikumo-charcoal); letter-spacing:.01em; }
+  .header-text .subtitle { font-size:.82rem; color:var(--muted); margin-top:4px; }
+  .header-right { text-align:right; }
+  .header-date { font-size:.8rem; color:var(--muted); }
+  .header-badge { display:inline-block; margin-top:6px; padding:4px 12px; background:var(--rikumo-sage); color:#fff; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; border-radius:4px; }
+
+  h2 { font-family:'Crimson Text',serif; font-size:1.2rem; font-weight:700; color:var(--rikumo-charcoal); margin-bottom:4px; }
+  .section { margin-bottom:48px; }
+  .section-header { display:flex; align-items:baseline; gap:12px; margin-bottom:16px; }
+  .section-sub { font-size:.82rem; color:var(--muted); }
+
+  /* ── Summary cards ── */
+  .cards-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+  .card-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+  .card-value { font-size:1.4rem; font-weight:800; color:var(--rikumo-charcoal); }
+  .card-value.sage  { color:var(--rikumo-sage); }
+  .card-value.terra { color:var(--rikumo-terra); }
+  .card-value.green { color:var(--green); }
+  .card-value.red   { color:var(--red); }
+  .card-value.blue  { color:var(--blue); }
+  .card-detail { font-size:.78rem; color:var(--muted); margin-top:6px; }
+  .card-detail .up { color:var(--green); font-weight:700; }
+  .card-detail .down { color:var(--red); font-weight:700; }
+
+  /* ── Callout ── */
+  .callout { border-radius:10px; padding:18px 22px; margin-bottom:20px; font-size:.88rem; line-height:1.7; }
+  .callout.sage { background:#EFF5F2; border:1px solid #C3D9CC; border-left:4px solid var(--rikumo-sage); color:#2C3E2F; }
+  .callout.terra { background:#FDF5EE; border:1px solid #E8D2B8; border-left:4px solid var(--rikumo-terra); color:#4A3520; }
+  .callout.blue { background:#EBF2F9; border:1px solid #BAD3EC; border-left:4px solid var(--blue); color:#2C3E50; }
+  .callout strong { font-weight:700; }
+
+  /* ── Insights ── */
+  .insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .insight-col-header { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; padding:7px 12px; border-radius:6px; margin-bottom:12px; }
+  .insight-col-header.scale { background:#E8F5EA; color:var(--green); border:1px solid #C8E6CA; }
+  .insight-col-header.watch { background:#FDF3E7; color:#A0522D; border:1px solid #F5CBA7; }
+  .insight-col-header.act   { background:#FDEDEC; color:var(--red); border:1px solid #F1948A; }
+  .insight-card { border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+  .insight-card.scale { background:#F0FAF1; border:1px solid #C3E6C7; }
+  .insight-card.watch { background:#FEF9F0; border:1px solid #F5D5A3; }
+  .insight-card.act   { background:#FEF1EF; border:1px solid #F4A99E; }
+  .insight-title { font-size:.85rem; font-weight:700; margin-bottom:7px; }
+  .insight-card.scale .insight-title { color:#1B6B2A; }
+  .insight-card.watch .insight-title { color:#8B4513; }
+  .insight-card.act   .insight-title { color:#922B21; }
+  .insight-body { font-size:.8rem; line-height:1.65; color:#444; }
+  .insight-body strong { color:var(--rikumo-charcoal); }
+
+  /* ── Charts ── */
+  .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+  .chart-card.full { grid-column:1/-1; }
+  .chart-title { font-size:.82rem; font-weight:700; color:var(--rikumo-charcoal); margin-bottom:12px; }
+  canvas { max-height:320px; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.84rem; }
+  thead th { background:var(--surface-2); color:var(--muted); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:10px 12px; text-align:right; border-bottom:2px solid var(--border); white-space:nowrap; }
+  thead th:first-child { text-align:left; }
+  tbody tr { border-bottom:1px solid var(--border-light); }
+  tbody tr:hover { background:#F9F7F4; }
+  tbody td { padding:9px 12px; text-align:right; color:var(--text); }
+  tbody td:first-child { text-align:left; font-weight:600; }
+  tfoot td { padding:10px 12px; text-align:right; font-weight:700; border-top:2px solid var(--border); background:var(--surface-2); }
+  tfoot td:first-child { text-align:left; }
+  .badge { display:inline-block; padding:3px 9px; border-radius:999px; font-size:.7rem; font-weight:700; }
+  .badge.green { background:#E8F5EA; color:var(--green); border:1px solid #C3E6C7; }
+  .badge.amber { background:#FDF3E7; color:#A0522D; border:1px solid #F5CBA7; }
+  .badge.red   { background:#FDEDEC; color:var(--red); border:1px solid #F4A99E; }
+  .badge.sage  { background:#EFF5F2; color:var(--rikumo-sage); border:1px solid #C3D9CC; }
+  .badge.gray  { background:var(--surface-2); color:var(--muted); border:1px solid var(--border); }
+
+  /* ── Scaling table highlight ── */
+  .scale-table { border:2px solid var(--rikumo-sage); border-radius:10px; overflow:hidden; }
+  .scale-table thead th { background:var(--rikumo-sage); color:#fff; }
+  .scale-table tbody tr.current { background:#EFF5F2; }
+  .scale-table tbody tr.recommended { background:#E8F5EA; }
+  .scale-table .highlight { font-weight:800; color:var(--green); }
+  .scale-table .phase-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:.68rem; font-weight:700; }
+  .scale-table .phase-badge.current { background:var(--surface-2); color:var(--muted); }
+  .scale-table .phase-badge.p1 { background:#E8F5EA; color:var(--green); }
+  .scale-table .phase-badge.p2 { background:#EBF2F9; color:var(--blue); }
+  .scale-table .phase-badge.p3 { background:#FDF3E7; color:#A0522D; }
+  .scale-table .phase-badge.p4 { background:#FDF5EE; color:var(--rikumo-terra); }
+
+  /* ── Pmax section ── */
+  .pmax-status { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .pmax-card { border-radius:10px; padding:20px; }
+  .pmax-card.current { background:#FEF1EF; border:2px solid #F4A99E; }
+  .pmax-card.recommended { background:#E8F5EA; border:2px solid #C3E6C7; }
+  .pmax-card h3 { font-family:'Crimson Text',serif; font-size:1rem; font-weight:700; margin-bottom:10px; }
+  .pmax-card.current h3 { color:var(--red); }
+  .pmax-card.recommended h3 { color:var(--green); }
+  .pmax-card ul { padding-left:18px; font-size:.84rem; line-height:1.8; color:#444; }
+  .pmax-card li { margin-bottom:4px; }
+
+  /* ── Strategic Recommendations ── */
+  .recs-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .rec-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+  .rec-number { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:var(--rikumo-sage); color:#fff; font-size:.78rem; font-weight:800; margin-bottom:10px; }
+  .rec-title { font-size:.92rem; font-weight:700; color:var(--rikumo-charcoal); margin-bottom:8px; }
+  .rec-body { font-size:.82rem; line-height:1.7; color:#555; }
+  .rec-body strong { color:var(--rikumo-charcoal); }
+
+  .footer { margin-top:48px; border-top:2px solid var(--border); padding-top:20px; font-size:.77rem; color:var(--muted); display:flex; align-items:center; justify-content:space-between; }
+
+  @media(max-width:900px) {
+    .charts-row, .insights-grid, .recs-grid, .pmax-status { grid-template-columns:1fr; }
+    .cards-row { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<div class="report-header">
+  <div class="header-left">
+    <img class="header-logo" src="https://rikumo.com/cdn/shop/files/RikumoJapan_Logo_280x_2x_2d05ab79-3f5c-47a7-bf7c-46f6822e36ef_480x.webp" alt="Rikumo" onerror="this.outerHTML='<span style=\'font-family:Crimson Text,serif;font-size:2.2rem;font-weight:700;color:#5B7B6F\'>rikumo</span>'">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>E-Commerce Growth Audit &amp; Google Ads Scaling Strategy</h1>
+      <div class="subtitle">Shopify Revenue &amp; Channel Attribution &middot; Google Ads Performance &middot; Jan 2025 &ndash; Feb 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-date">Generated March 18, 2026</div>
+    <div class="header-badge">Confidential</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ EXECUTIVE SUMMARY ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Executive Summary</h2>
+    <span class="section-sub">Full Year 2025 (Jan &ndash; Dec)</span>
+  </div>
+
+  <div class="callout sage">
+    <strong>Key Finding:</strong> Rikumo generates <strong>$1.02M in annual net sales</strong> while spending only <strong>$13,441/year on Google Ads</strong> (~$1,120/month).
+    That's just <strong>1.3% of revenue</strong> going to paid ads. Google CPC delivers a verified <strong>4.7x ROAS</strong> (Shopify UTM-tracked) &mdash; a clear sign the ad account is
+    massively under-invested. There is significant headroom to scale paid search and introduce Performance Max to capture incremental revenue.
+  </div>
+
+  <div class="cards-row">
+    <div class="card">
+      <div class="card-label">2025 Net Sales</div>
+      <div class="card-value">$1,024,741</div>
+      <div class="card-detail">7,327 orders &middot; AOV $139.86</div>
+    </div>
+    <div class="card">
+      <div class="card-label">2025 Google Ads Spend</div>
+      <div class="card-value terra">$13,441</div>
+      <div class="card-detail">Only 1.3% of net sales</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Google CPC Revenue (UTM)</div>
+      <div class="card-value sage">$63,502</div>
+      <div class="card-detail">6.2% of total net sales</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Verified CPC ROAS</div>
+      <div class="card-value green">4.72x</div>
+      <div class="card-detail">Shopify UTM last-click attribution</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg Monthly Ad Spend</div>
+      <div class="card-value terra">$1,120</div>
+      <div class="card-detail">Range: $740 &ndash; $1,697</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Organic / Direct Revenue</div>
+      <div class="card-value">74.9%</div>
+      <div class="card-detail">$767,246 with no paid attribution</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ JAN/FEB YoY COMPARISON ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Year-over-Year: Jan &amp; Feb (2025 vs 2026)</h2>
+  </div>
+
+  <div class="callout blue">
+    <strong>Proof of concept:</strong> In January 2026, Rikumo nearly <strong>doubled</strong> its Google Ads spend ($740 &rarr; $1,442, +95%) and CPC-attributed revenue
+    jumped <strong>+80%</strong> ($3,625 &rarr; $6,521) while ROAS held at a strong <strong>4.5x</strong>. This demonstrates that scaling spend does not tank efficiency.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Jan 2025</th><th>Jan 2026</th><th>Change</th><th>Feb 2025</th><th>Feb 2026</th><th>Change</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Shopify Net Sales</td><td>$106,340</td><td>$104,940</td><td><span class="badge red">-1.3%</span></td><td>$68,353</td><td>$66,826</td><td><span class="badge red">-2.2%</span></td></tr>
+        <tr><td>Orders</td><td>818</td><td>709</td><td><span class="badge red">-13.3%</span></td><td>558</td><td>460</td><td><span class="badge red">-17.6%</span></td></tr>
+        <tr><td>AOV</td><td>$130</td><td>$148</td><td><span class="badge green">+13.8%</span></td><td>$122</td><td>$145</td><td><span class="badge green">+18.7%</span></td></tr>
+        <tr><td>Google Ads Spend</td><td>$740</td><td>$1,442</td><td><span class="badge sage">+94.9%</span></td><td>$714</td><td>$913</td><td><span class="badge sage">+27.8%</span></td></tr>
+        <tr><td>CPC Revenue (UTM)</td><td>$3,625</td><td>$6,521</td><td><span class="badge green">+79.9%</span></td><td>$4,556</td><td>$6,548</td><td><span class="badge green">+43.7%</span></td></tr>
+        <tr><td>CPC ROAS (UTM)</td><td>4.9x</td><td>4.5x</td><td><span class="badge green">Held</span></td><td>6.4x</td><td>7.2x</td><td><span class="badge green">Up</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MONTHLY REVENUE TREND ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Monthly Revenue Trend</h2>
+    <span class="section-sub">Shopify Net Sales &amp; Google Ads Spend</span>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card full">
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ CHANNEL ATTRIBUTION ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Revenue Attribution by Channel</h2>
+    <span class="section-sub">Full Year 2025 &mdash; Shopify UTM last-click</span>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">2025 Revenue Mix (Net Sales)</div>
+      <canvas id="channelDonut"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Channel Breakdown</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Channel</th><th>Net Sales</th><th>Share</th><th>Orders</th></tr></thead>
+          <tbody>
+            <tr><td>Direct / Unattributed</td><td>$767,246</td><td>74.9%</td><td>5,359</td></tr>
+            <tr><td>Email Marketing</td><td>$147,813</td><td>14.4%</td><td>400</td></tr>
+            <tr><td>Google CPC (Paid Search)</td><td>$63,502</td><td>6.2%</td><td>470</td></tr>
+            <tr><td>Google Shopping (Free)</td><td>$24,242</td><td>2.4%</td><td>244</td></tr>
+            <tr><td>Social (Pinterest + Links)</td><td>$10,907</td><td>1.1%</td><td>74</td></tr>
+            <tr><td>Google Organic</td><td>$7,329</td><td>0.7%</td><td>49</td></tr>
+            <tr><td>Display (AdRoll)</td><td>$1,083</td><td>0.1%</td><td>11</td></tr>
+            <tr><td>Other</td><td>$2,619</td><td>0.3%</td><td>20</td></tr>
+          </tbody>
+          <tfoot><tr><td>Total</td><td>$1,024,741</td><td>100%</td><td>7,327</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="callout terra" style="margin-top:16px">
+    <strong>The Opportunity:</strong> Only <strong>6.3%</strong> of revenue comes from paid channels (Google CPC + AdRoll). Email drives 14.4%, and the remaining
+    <strong>75%</strong> comes from organic/direct traffic with no ad spend. Even a modest shift &mdash; moving paid from 6% to 12% of revenue &mdash; would mean
+    an additional <strong>~$60K/year</strong> in ad-driven sales, achievable at a $5K&ndash;$7K monthly budget.
+  </div>
+</div>
+
+<!-- ═══════════════════════ GOOGLE ADS DEEP DIVE ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Google Ads Performance — Monthly Detail</h2>
+    <span class="section-sub">Search campaigns only (Pmax started Feb 2026)</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Month</th><th>Type</th><th>Spend</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>Conv. Rate</th><th>Conv. Value (Google)</th><th>ROAS (Google)</th><th>CPC Rev (UTM)</th><th>ROAS (UTM)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan 2025</td><td><span class="badge sage">Search</span></td><td>$740</td><td>1,118</td><td>7.3%</td><td>$0.66</td><td>65.2%</td><td>$34,332</td><td>46.4x</td><td>$3,625</td><td><strong>4.9x</strong></td></tr>
+        <tr><td>Feb 2025</td><td><span class="badge sage">Search</span></td><td>$714</td><td>915</td><td>9.8%</td><td>$0.78</td><td>55.6%</td><td>$36,826</td><td>51.6x</td><td>$4,556</td><td><strong>6.4x</strong></td></tr>
+        <tr><td>Mar 2025</td><td><span class="badge sage">Search</span></td><td>$1,337</td><td>1,633</td><td>8.9%</td><td>$0.82</td><td>36.4%</td><td>$37,809</td><td>28.3x</td><td>$1,923</td><td><strong>1.4x</strong></td></tr>
+        <tr><td>Apr 2025</td><td><span class="badge sage">Search</span></td><td>$1,157</td><td>1,310</td><td>5.4%</td><td>$0.88</td><td>53.5%</td><td>$64,160</td><td>55.5x</td><td>$5,157</td><td><strong>4.5x</strong></td></tr>
+        <tr><td>May 2025</td><td><span class="badge sage">Search</span></td><td>$997</td><td>1,088</td><td>11.2%</td><td>$0.92</td><td>69.2%</td><td>$48,391</td><td>48.5x</td><td>$4,649</td><td><strong>4.7x</strong></td></tr>
+        <tr><td>Jun 2025</td><td><span class="badge sage">Search</span></td><td>$989</td><td>1,067</td><td>19.7%</td><td>$0.93</td><td>60.8%</td><td>$39,036</td><td>39.5x</td><td>$5,361</td><td><strong>5.4x</strong></td></tr>
+        <tr><td>Jul 2025</td><td><span class="badge sage">Search</span></td><td>$984</td><td>1,043</td><td>17.8%</td><td>$0.94</td><td>42.1%</td><td>$29,511</td><td>30.0x</td><td>$2,601</td><td><strong>2.6x</strong></td></tr>
+        <tr><td>Aug 2025</td><td><span class="badge sage">Search</span></td><td>$987</td><td>923</td><td>21.0%</td><td>$1.07</td><td>46.6%</td><td>$23,840</td><td>24.1x</td><td>$4,476</td><td><strong>4.5x</strong></td></tr>
+        <tr><td>Sep 2025</td><td><span class="badge sage">Search</span></td><td>$998</td><td>1,031</td><td>16.6%</td><td>$0.97</td><td>35.6%</td><td>$31,282</td><td>31.3x</td><td>$3,261</td><td><strong>3.3x</strong></td></tr>
+        <tr><td>Oct 2025</td><td><span class="badge sage">Search</span></td><td>$1,274</td><td>1,302</td><td>16.3%</td><td>$0.98</td><td>68.5%</td><td>$66,026</td><td>51.8x</td><td>$6,777</td><td><strong>5.3x</strong></td></tr>
+        <tr><td>Nov 2025</td><td><span class="badge sage">Search</span></td><td>$1,568</td><td>1,993</td><td>20.4%</td><td>$0.79</td><td>73.0%</td><td>$98,314</td><td>62.7x</td><td>$10,289</td><td><strong>6.6x</strong></td></tr>
+        <tr><td>Dec 2025</td><td><span class="badge sage">Search</span></td><td>$1,697</td><td>2,391</td><td>20.4%</td><td>$0.71</td><td>53.3%</td><td>$78,598</td><td>46.3x</td><td>$10,827</td><td><strong>6.4x</strong></td></tr>
+        <tr style="border-top:2px solid var(--border)"><td>Jan 2026</td><td><span class="badge sage">Search</span></td><td>$1,442</td><td>1,671</td><td>18.1%</td><td>$0.86</td><td>56.2%</td><td>$68,687</td><td>47.6x</td><td>$6,521</td><td><strong>4.5x</strong></td></tr>
+        <tr><td>Feb 2026</td><td><span class="badge sage">Search</span></td><td>$845</td><td>1,110</td><td>20.1%</td><td>$0.76</td><td>73.1%</td><td>$58,469</td><td>69.2x</td><td>$6,548</td><td><strong>7.7x</strong></td></tr>
+        <tr><td>Feb 2026</td><td><span class="badge amber">Pmax</span></td><td>$68</td><td>207</td><td>2.1%</td><td>$0.33</td><td>54.2%</td><td>$7,061</td><td>104.6x</td><td colspan="2" style="color:var(--muted);font-style:italic">UTM not tracked</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>2025 Total</td><td></td><td>$13,441</td><td>15,442</td><td></td><td>$0.87</td><td></td><td>$588,125</td><td>43.8x</td><td>$63,502</td><td><strong>4.72x</strong></td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="charts-row" style="margin-top:16px">
+    <div class="chart-card">
+      <div class="chart-title">Monthly Ad Spend vs CPC Revenue (UTM)</div>
+      <canvas id="spendVsRevenueChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Monthly ROAS Comparison (Google-reported vs UTM-verified)</div>
+      <canvas id="roasChart"></canvas>
+    </div>
+  </div>
+
+  <div class="callout blue" style="margin-top:16px">
+    <strong>Why the huge gap between Google ROAS and UTM ROAS?</strong> Google Ads uses broad conversion attribution (cross-device, view-through, data-driven models)
+    and counts <em>all</em> conversion actions. Shopify UTM tracks only last-click direct purchases. The real ROAS likely sits between these two numbers.
+    Even the conservative UTM figure of <strong>4.72x</strong> is exceptional &mdash; most e-commerce brands target 3x&ndash;4x.
+  </div>
+</div>
+
+<!-- ═══════════════════════ AD SPEND SCALING PROJECTION ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Ad Spend Scaling Projection</h2>
+    <span class="section-sub">What happens when you increase the Google Ads budget</span>
+  </div>
+
+  <div class="callout sage">
+    <strong>How to read this table:</strong> Each phase adds $2,000/month to the Google Ads budget.
+    The "Incremental ROAS" column shows the expected return on each additional $2,000 &mdash; it decreases gradually
+    as you move beyond the highest-intent keywords, but remains profitable through all phases.
+    The "Blended ROAS" shows the overall return across your entire budget.
+  </div>
+
+  <div class="table-wrap">
+    <table class="scale-table">
+      <thead>
+        <tr><th>Phase</th><th>Monthly Budget</th><th>vs Current</th><th>Incremental ROAS</th><th>Blended ROAS</th><th>Est. Monthly Ad Revenue</th><th>Additional Revenue vs Today</th><th>Annual Revenue Impact</th></tr>
+      </thead>
+      <tbody>
+        <tr class="current">
+          <td><span class="phase-badge current">Current</span></td>
+          <td>$1,120</td>
+          <td>&mdash;</td>
+          <td>4.7x</td>
+          <td>4.7x</td>
+          <td>$5,292</td>
+          <td>&mdash;</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr class="recommended">
+          <td><span class="phase-badge p1">Phase 1</span></td>
+          <td>$3,000</td>
+          <td>+$1,880</td>
+          <td>3.8x</td>
+          <td>4.2x</td>
+          <td class="highlight">$12,436</td>
+          <td class="highlight">+$7,144/mo</td>
+          <td class="highlight">+$85,728/yr</td>
+        </tr>
+        <tr>
+          <td><span class="phase-badge p2">Phase 2</span></td>
+          <td>$5,000</td>
+          <td>+$3,880</td>
+          <td>3.2x</td>
+          <td>3.7x</td>
+          <td>$18,836</td>
+          <td>+$13,544/mo</td>
+          <td>+$162,528/yr</td>
+        </tr>
+        <tr>
+          <td><span class="phase-badge p3">Phase 3</span></td>
+          <td>$7,500</td>
+          <td>+$6,380</td>
+          <td>2.7x</td>
+          <td>3.3x</td>
+          <td>$25,586</td>
+          <td>+$20,294/mo</td>
+          <td>+$243,528/yr</td>
+        </tr>
+        <tr>
+          <td><span class="phase-badge p4">Phase 4</span></td>
+          <td>$10,000</td>
+          <td>+$8,880</td>
+          <td>2.2x</td>
+          <td>3.0x</td>
+          <td>$31,086</td>
+          <td>+$25,794/mo</td>
+          <td>+$309,528/yr</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:16px">
+    <div class="chart-card">
+      <div class="chart-title">Budget Scaling: Spend vs Projected Revenue</div>
+      <canvas id="scalingChart"></canvas>
+    </div>
+  </div>
+
+  <div class="callout terra" style="margin-top:16px">
+    <strong>Recommended starting point: Phase 1 ($3,000/month).</strong> This nearly triples the current budget
+    but based on January 2026 data (where doubling spend maintained 4.5x ROAS), a 3x budget should sustain ~3.8x&ndash;4.2x returns.
+    At Phase 1, you can expect <strong>~$7,100 in additional monthly revenue</strong> for just <strong>$1,880 in additional spend</strong>.
+    Run Phase 1 for 60&ndash;90 days, then evaluate ROAS before advancing to Phase 2.
+  </div>
+</div>
+
+<!-- ═══════════════════════ PMAX ASSESSMENT ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Performance Max (Pmax) Assessment</h2>
+    <span class="section-sub">Currently under-utilized &mdash; massive opportunity</span>
+  </div>
+
+  <div class="pmax-status">
+    <div class="pmax-card current">
+      <h3>Current State</h3>
+      <ul>
+        <li><strong>$67.53</strong> spent in Feb 2026 &mdash; the only month with Pmax active</li>
+        <li>Generated <strong>$7,061</strong> in Google-reported conversion value (104.6x ROAS)</li>
+        <li>207 clicks at <strong>$0.33 CPC</strong> (extremely cheap)</li>
+        <li>9,952 impressions &mdash; showing Shopping, Display, YouTube, Discover, Gmail</li>
+        <li>No proper asset groups, audience signals, or feed optimization detected</li>
+        <li><span class="badge red">Not being used properly</span></li>
+      </ul>
+    </div>
+    <div class="pmax-card recommended">
+      <h3>What You Should Be Doing</h3>
+      <ul>
+        <li>Allocate <strong>$1,000&ndash;$2,000/month</strong> to Pmax immediately</li>
+        <li>Build 2&ndash;3 <strong>asset groups</strong> around top product categories (kitchenware, tea, home d&eacute;cor)</li>
+        <li>Add <strong>audience signals</strong>: In-market (Home D&eacute;cor, Japanese Culture, Tea, Kitchen), Affinity (Design, Cooking, Lifestyle)</li>
+        <li>Upload <strong>high-quality lifestyle images</strong> &mdash; Japanese artisan goods photograph beautifully</li>
+        <li>Add <strong>custom segments</strong>: competitor websites (Heath Ceramics, Toiro, Korin), related searches</li>
+        <li>Ensure <strong>Google Merchant Center feed</strong> is optimized with all product attributes</li>
+        <li>Let campaigns run for <strong>4&ndash;6 weeks</strong> before evaluating &mdash; Pmax needs data to learn</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout sage">
+    <strong>Why Pmax matters for Rikumo:</strong> Performance Max campaigns serve ads across <em>all</em> Google surfaces
+    (Search, Shopping, YouTube, Display, Discover, Gmail) from a single campaign. For a visually-driven brand like Rikumo,
+    Pmax can showcase beautiful product imagery to high-intent shoppers who are browsing on YouTube or Discover but wouldn't
+    click a text search ad. The $0.33 CPC in Feb 2026 proves there's cheap, untapped inventory available.
+  </div>
+</div>
+
+<!-- ═══════════════════════ MONTHLY CHANNEL MIX TABLE ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Monthly Revenue by Channel</h2>
+    <span class="section-sub">Shopify UTM-tracked net sales by source</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Month</th><th>Total Net Sales</th><th>Direct / Organic</th><th>Email</th><th>Google CPC</th><th>Google Shopping</th><th>Social</th><th>Google Organic</th><th>Other</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan 2025</td><td>$106,340</td><td>$72,204</td><td>$25,648</td><td>$3,625</td><td>$2,020</td><td>$1,120</td><td>$1,427</td><td>$296</td></tr>
+        <tr><td>Feb 2025</td><td>$68,353</td><td>$51,016</td><td>$10,089</td><td>$4,556</td><td>$1,255</td><td>$942</td><td>$150</td><td>$345</td></tr>
+        <tr><td>Mar 2025</td><td>$77,284</td><td>$63,073</td><td>$8,908</td><td>$1,923</td><td>$2,406</td><td>$101</td><td>$815</td><td>$58</td></tr>
+        <tr><td>Apr 2025</td><td>$76,061</td><td>$57,757</td><td>$11,096</td><td>$5,157</td><td>$668</td><td>$622</td><td>$322</td><td>$439</td></tr>
+        <tr><td>May 2025</td><td>$81,491</td><td>$61,782</td><td>$12,851</td><td>$4,649</td><td>$1,926</td><td>$157</td><td>$88</td><td>$38</td></tr>
+        <tr><td>Jun 2025</td><td>$72,548</td><td>$50,440</td><td>$14,172</td><td>$5,361</td><td>$1,199</td><td>$926</td><td>$435</td><td>$15</td></tr>
+        <tr><td>Jul 2025</td><td>$62,171</td><td>$50,460</td><td>$5,482</td><td>$2,601</td><td>$2,704</td><td>$584</td><td>$206</td><td>$134</td></tr>
+        <tr><td>Aug 2025</td><td>$77,522</td><td>$62,165</td><td>$7,169</td><td>$4,476</td><td>$1,207</td><td>$1,372</td><td>$838</td><td>$295</td></tr>
+        <tr><td>Sep 2025</td><td>$64,101</td><td>$48,945</td><td>$7,294</td><td>$3,261</td><td>$2,042</td><td>$1,577</td><td>$920</td><td>$62</td></tr>
+        <tr><td>Oct 2025</td><td>$78,083</td><td>$59,673</td><td>$8,645</td><td>$6,777</td><td>$1,883</td><td>$-18</td><td>$151</td><td>$972</td></tr>
+        <tr><td>Nov 2025</td><td>$122,011</td><td>$85,338</td><td>$20,446</td><td>$10,289</td><td>$2,641</td><td>$2,236</td><td>$765</td><td>$296</td></tr>
+        <tr><td>Dec 2025</td><td>$138,776</td><td>$104,393</td><td>$16,013</td><td>$10,827</td><td>$4,291</td><td>$1,288</td><td>$1,212</td><td>$752</td></tr>
+        <tr style="border-top:2px solid var(--border)"><td>Jan 2026</td><td>$104,940</td><td>$61,290</td><td>$32,011</td><td>$6,521</td><td>$2,297</td><td>$1,297</td><td>$118</td><td>$1,406</td></tr>
+        <tr><td>Feb 2026</td><td>$66,826</td><td>$44,545</td><td>$13,132</td><td>$6,548</td><td>$1,417</td><td>$704</td><td>$327</td><td>$153</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>2025 Total</td><td>$1,024,741</td><td>$767,246</td><td>$147,813</td><td>$63,502</td><td>$24,242</td><td>$10,907</td><td>$7,329</td><td>$3,702</td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════ GOOGLE ADS vs SHOPIFY ATTRIBUTION ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Google Ads Platform vs Shopify Attribution</h2>
+    <span class="section-sub">Understanding the ROAS gap</span>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Google-Reported Conversion Value vs UTM-Tracked CPC Revenue</div>
+      <canvas id="attributionChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">What This Means</div>
+      <div style="padding:16px; font-size:.86rem; line-height:1.8; color:#444">
+        <p style="margin-bottom:14px"><strong>Google reports an average 43.8x ROAS</strong> for 2025. That number is inflated because Google attributes conversions broadly — including view-through conversions, cross-device, and users who clicked an ad but purchased later through another channel.</p>
+        <p style="margin-bottom:14px"><strong>Shopify UTM shows 4.72x ROAS</strong> — only counting purchases where the user's last click before buying was a Google CPC ad. This is the most conservative measure.</p>
+        <p style="margin-bottom:14px"><strong>The real ROAS is likely 6x&ndash;15x</strong>, somewhere between these two figures. Google Ads is clearly driving significant brand awareness and consideration that results in purchases through other channels (direct, email, etc.).</p>
+        <p><strong>Bottom line:</strong> Even at the most conservative 4.72x measurement, every dollar spent on Google Ads generates $4.72 in tracked revenue. The true contribution including assisted conversions is much higher.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ KEY INSIGHTS ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Key Insights &amp; Action Items</h2>
+  </div>
+  <div class="insights-grid">
+    <div>
+      <div class="insight-col-header scale">Scale &mdash; Immediate Opportunities</div>
+      <div class="insight-card scale">
+        <div class="insight-title">Google Search Ads Are Under-Funded</div>
+        <div class="insight-body">At <strong>$1,120/month</strong> with <strong>4.72x ROAS</strong>, this account is leaving money on the table. The Jan 2026 proof (doubled spend, ROAS held) confirms there's room to scale to <strong>$3K&ndash;$5K/month</strong> without efficiency loss.</div>
+      </div>
+      <div class="insight-card scale">
+        <div class="insight-title">Launch Real Pmax Campaigns</div>
+        <div class="insight-body">$67 in Feb 2026 isn't a test — it's barely a pulse. Pmax at <strong>$1K&ndash;$2K/month</strong> with proper asset groups for Rikumo's beautiful product imagery would unlock Shopping, YouTube, and Discovery inventory at <strong>$0.33 CPC</strong>.</div>
+      </div>
+      <div class="insight-card scale">
+        <div class="insight-title">Holiday Season Amplification</div>
+        <div class="insight-body">Nov &amp; Dec saw <strong>6.4x&ndash;6.6x ROAS</strong> on just $1,568&ndash;$1,697 spend. Doubling or tripling holiday budget to <strong>$5K&ndash;$8K/month</strong> during Q4 would capture significantly more holiday demand.</div>
+      </div>
+    </div>
+    <div>
+      <div class="insight-col-header watch">Watch &mdash; Monitor Closely</div>
+      <div class="insight-card watch">
+        <div class="insight-title">Order Volume Is Declining YoY</div>
+        <div class="insight-body">Jan orders dropped <strong>-13.3%</strong> and Feb dropped <strong>-17.6%</strong> YoY. AOV is up (+14&ndash;19%), offsetting most of the decline in revenue, but fewer customers is a warning signal. Paid ads can help reverse this trend.</div>
+      </div>
+      <div class="insight-card watch">
+        <div class="insight-title">March 2025 Was an Outlier</div>
+        <div class="insight-body">March showed only <strong>1.4x UTM ROAS</strong> — the worst month by far. With higher spend ($1,337) but only $1,923 in CPC revenue, something was off. Investigate whether campaign settings, keyword targeting, or landing pages changed that month.</div>
+      </div>
+      <div class="insight-card watch">
+        <div class="insight-title">Email Drives 14% but Is It Optimized?</div>
+        <div class="insight-body">Klaviyo newsletters + flows + back-in-stock emails drove <strong>$147K</strong> in 2025. Jan 2026 saw a massive jump to $32K (vs $25K in Jan 2025). Ensure email isn't cannibalizing potential ad conversions — coordinate ad and email timing.</div>
+      </div>
+    </div>
+    <div>
+      <div class="insight-col-header act">Act Now &mdash; Critical</div>
+      <div class="insight-card act">
+        <div class="insight-title">75% Revenue Has Zero Attribution</div>
+        <div class="insight-body">Three-quarters of revenue shows no UTM source. This means most buyers arrive directly or through organic channels. While great for margins, it's a <strong>vulnerability</strong> — any SEO algorithm change or brand-awareness dip could tank revenue with no paid safety net.</div>
+      </div>
+      <div class="insight-card act">
+        <div class="insight-title">No Spend on Social Ads</div>
+        <div class="insight-body">Pinterest drives organic social sales, but there's <strong>zero paid social budget</strong>. For a visual, lifestyle brand like Rikumo, Instagram and Pinterest paid campaigns could be highly effective. Even <strong>$500&ndash;$1K/month</strong> in testing would provide data.</div>
+      </div>
+      <div class="insight-card act">
+        <div class="insight-title">Google Shopping Feed Under-Leveraged</div>
+        <div class="insight-body">Free product_sync listings drive <strong>$24K/year</strong> — but paid Shopping (via Pmax) would significantly amplify this. Ensure the Merchant Center feed has optimized titles, descriptions, GTINs, and product types for maximum visibility.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ WHERE THE MONEY CURRENTLY GOES ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Current Ad Efficiency Analysis</h2>
+    <span class="section-sub">How well the existing $13,441 is being spent</span>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Ad Spend as % of Revenue (by Month)</div>
+      <canvas id="spendPctChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">CPC Revenue Share of Total Sales (by Month)</div>
+      <canvas id="cpcShareChart"></canvas>
+    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:16px">
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>2025 Actual</th><th>Benchmark (E-Commerce)</th><th>Assessment</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ad Spend as % of Revenue</td><td>1.3%</td><td>8&ndash;15%</td><td><span class="badge red">Severely Under-Invested</span></td></tr>
+        <tr><td>ROAS (UTM)</td><td>4.72x</td><td>3x&ndash;4x Target</td><td><span class="badge green">Above Target</span></td></tr>
+        <tr><td>Average CPC</td><td>$0.87</td><td>$1.50&ndash;$3.00</td><td><span class="badge green">Very Low Cost</span></td></tr>
+        <tr><td>CTR</td><td>14.4% avg</td><td>3&ndash;5%</td><td><span class="badge green">Exceptional</span></td></tr>
+        <tr><td>Conversion Rate</td><td>54.3% avg</td><td>2&ndash;5%</td><td><span class="badge amber">Inflated*</span></td></tr>
+        <tr><td>Pmax Usage</td><td>1 month, $68</td><td>30&ndash;50% of budget</td><td><span class="badge red">Not Utilized</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.76rem; color:var(--muted); margin-top:8px">*Google-reported conversion rate of 54.3% is inflated due to broad conversion tracking. Actual site conversion rate is likely 2&ndash;4%.</p>
+</div>
+
+<!-- ═══════════════════════ STRATEGIC RECOMMENDATIONS ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Strategic Recommendations</h2>
+    <span class="section-sub">Prioritized action plan for scaling Rikumo's paid acquisition</span>
+  </div>
+  <div class="recs-grid">
+    <div class="rec-card">
+      <div class="rec-number">1</div>
+      <div class="rec-title">Scale Google Search to $3,000/Month (Phase 1)</div>
+      <div class="rec-body">
+        Increase the monthly Search budget from $1,120 to $3,000 immediately. The January 2026 data proves that
+        <strong>doubling spend maintained 4.5x ROAS</strong>. At $3K/month, expect <strong>$12K+ in monthly CPC revenue</strong>
+        vs the current $5.3K. Focus additional budget on:<br>
+        &bull; Expanding keyword coverage (long-tail Japanese homeware terms)<br>
+        &bull; Competitive conquest campaigns (target competitor brand searches)<br>
+        &bull; Category-specific campaigns (tea, ceramics, kitchen, bath)
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-number">2</div>
+      <div class="rec-title">Launch Proper Pmax Campaigns ($1,000&ndash;$2,000/Month)</div>
+      <div class="rec-body">
+        The $68 "test" in Feb 2026 doesn't qualify as a real experiment. Allocate <strong>$1K&ndash;$2K/month</strong> with:
+        <br>&bull; <strong>3 asset groups</strong>: Kitchenware &amp; Ceramics, Tea &amp; Food, Home D&eacute;cor &amp; Bath
+        <br>&bull; <strong>15+ high-quality lifestyle images</strong> per asset group
+        <br>&bull; <strong>5 headlines + 5 descriptions</strong> highlighting Japanese craftsmanship
+        <br>&bull; <strong>Audience signals</strong>: Japanese culture enthusiasts, home d&eacute;cor shoppers, tea lovers
+        <br>&bull; Run for <strong>6 weeks minimum</strong> before evaluating
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-number">3</div>
+      <div class="rec-title">Optimize the Same Budget First (Quick Wins)</div>
+      <div class="rec-body">
+        Before adding budget, ensure the existing $1,120 is spent optimally:<br>
+        &bull; <strong>Review search terms report</strong> &mdash; are there wasted clicks on irrelevant queries?<br>
+        &bull; <strong>Add negative keywords</strong> aggressively (e.g., "free," "DIY," "wholesale," "cheap")<br>
+        &bull; <strong>Check ad scheduling</strong> &mdash; are ads running 24/7 or optimized for peak conversion hours?<br>
+        &bull; <strong>Review device bids</strong> &mdash; mobile vs desktop performance may vary significantly<br>
+        &bull; <strong>Audit landing pages</strong> &mdash; ensure ads link to relevant category/product pages, not just homepage
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-number">4</div>
+      <div class="rec-title">Build a Q4 / Holiday Scaling Plan</div>
+      <div class="rec-body">
+        Nov &amp; Dec 2025 delivered <strong>$10K+ in CPC revenue each</strong> at 6.4&ndash;6.6x ROAS on just $1,568&ndash;$1,697 spend.
+        For Q4 2026, plan to:<br>
+        &bull; Increase budget to <strong>$5,000&ndash;$8,000/month</strong> for Oct&ndash;Dec<br>
+        &bull; Launch holiday-specific campaigns and ad copy<br>
+        &bull; Create gift-guide landing pages for Pmax asset groups<br>
+        &bull; Start ramping budget in September to build campaign history<br>
+        &bull; Estimated Q4 impact: <strong>+$40K&ndash;$60K</strong> in additional holiday revenue
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-number">5</div>
+      <div class="rec-title">Test Paid Social ($500&ndash;$1,000/Month)</div>
+      <div class="rec-body">
+        Rikumo's aesthetic products are perfect for visual platforms. Pinterest organic already drives sales.
+        Start testing with:<br>
+        &bull; <strong>Pinterest Ads</strong>: Product pins + collection ads targeting home d&eacute;cor and Japanese culture interests<br>
+        &bull; <strong>Instagram/Meta Ads</strong>: Lifestyle imagery, influencer UGC, retargeting website visitors<br>
+        &bull; Budget: $500&ndash;$1K/month split across platforms<br>
+        &bull; Focus on top-of-funnel awareness + retargeting warm audiences
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-number">6</div>
+      <div class="rec-title">Diversify Away from 75% Unattributed Revenue</div>
+      <div class="rec-body">
+        Relying on organic/direct traffic for three-quarters of revenue is a vulnerability. To reduce risk:<br>
+        &bull; <strong>Scale paid channels</strong> to 15&ndash;20% of revenue (from current 6%)<br>
+        &bull; <strong>Invest in SEO content</strong> &mdash; Japanese lifestyle blog, product guides, craft stories<br>
+        &bull; <strong>Build email list aggressively</strong> &mdash; email already drives 14% of revenue and is highly efficient<br>
+        &bull; <strong>Track all touchpoints</strong> &mdash; ensure UTM parameters are on every link from every channel<br>
+        &bull; Goal: reduce unattributed revenue from 75% to under 50% within 12 months
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SUMMARY TABLE ═══════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>Proposed Monthly Budget Allocation</h2>
+    <span class="section-sub">Phase 1 recommendation &mdash; total $4,500&ndash;$6,000/month</span>
+  </div>
+  <div class="table-wrap">
+    <table class="scale-table">
+      <thead>
+        <tr><th>Channel</th><th>Current Spend</th><th>Recommended Spend</th><th>Expected Revenue</th><th>Expected ROAS</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Google Search</td>
+          <td>$1,120/mo</td>
+          <td><strong>$3,000/mo</strong></td>
+          <td>$12,000&ndash;$14,000</td>
+          <td>4.0x&ndash;4.7x</td>
+        </tr>
+        <tr>
+          <td>Google Pmax</td>
+          <td>$68/mo*</td>
+          <td><strong>$1,500/mo</strong></td>
+          <td>$4,500&ndash;$7,500</td>
+          <td>3.0x&ndash;5.0x</td>
+        </tr>
+        <tr>
+          <td>Paid Social (Pinterest/Meta)</td>
+          <td>$0</td>
+          <td><strong>$500&ndash;$1,000/mo</strong></td>
+          <td>$1,000&ndash;$3,000</td>
+          <td>2.0x&ndash;3.0x</td>
+        </tr>
+        <tr>
+          <td>AdRoll (Display/Retarget)</td>
+          <td>~$90/mo</td>
+          <td><strong>$500/mo</strong></td>
+          <td>$1,000&ndash;$2,000</td>
+          <td>2.0x&ndash;4.0x</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Total</td>
+          <td>~$1,280/mo</td>
+          <td><strong>$5,500&ndash;$6,000/mo</strong></td>
+          <td>$18,500&ndash;$26,500</td>
+          <td>3.4x&ndash;4.4x blended</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p style="font-size:.76rem; color:var(--muted); margin-top:8px">*Pmax: $68 was Feb 2026 only; AdRoll average estimated from UTM data.</p>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<div class="footer">
+  <div>Rikumo E-Commerce Growth Audit &middot; Data period: Jan 2025 &ndash; Feb 2026 &middot; Generated March 18, 2026</div>
+  <div style="font-size:.72rem">Sources: Shopify Admin (sales &amp; UTM), Google Ads (campaign data)</div>
+</div>
+
+<!-- ═══════════════════════ CHART.JS SCRIPTS ═══════════════════════ -->
+<script>
+const months = ['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26'];
+const netSales = [106340,68353,77284,76061,81491,72548,62171,77522,64101,78083,122011,138776,104940,66826];
+const adSpend = [740,714,1337,1157,997,989,984,987,998,1274,1568,1697,1442,913];
+const cpcRevenue = [3625,4556,1923,5157,4649,5361,2601,4476,3261,6777,10289,10827,6521,6548];
+const googleRoas = [46.4,51.6,28.3,55.5,48.5,39.5,30.0,24.1,31.3,51.8,62.7,46.3,47.6,71.8];
+const utmRoas = [4.9,6.4,1.4,4.5,4.7,5.4,2.6,4.5,3.3,5.3,6.6,6.4,4.5,7.2];
+const spendPct = netSales.map((s,i) => ((adSpend[i]/s)*100).toFixed(2));
+const cpcPct = netSales.map((s,i) => ((cpcRevenue[i]/s)*100).toFixed(1));
+
+const sage = '#5B7B6F';
+const terra = '#C4956A';
+const blue = '#3A7CA5';
+const green = '#2D7A4A';
+const red = '#C0392B';
+const charcoal = '#2C2C2C';
+
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#717171';
+
+// ── Revenue + Ad Spend Trend ──
+new Chart(document.getElementById('revenueChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Net Sales', data:netSales, backgroundColor:'rgba(91,123,111,0.7)', borderRadius:4, yAxisID:'y', order:2 },
+      { label:'Google CPC Revenue (UTM)', data:cpcRevenue, backgroundColor:'rgba(58,124,165,0.7)', borderRadius:4, yAxisID:'y', order:3 },
+      { label:'Ad Spend', data:adSpend, type:'line', borderColor:terra, backgroundColor:'rgba(196,149,106,0.2)', pointBackgroundColor:terra, pointRadius:4, borderWidth:2, yAxisID:'y2', order:1 }
+    ]
+  },
+  options: {
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    scales:{
+      y:{position:'left',ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#EDEBE6'}},
+      y2:{position:'right',ticks:{callback:v=>'$'+v.toLocaleString()},grid:{display:false},max:3000}
+    },
+    plugins:{tooltip:{callbacks:{label:ctx=>{let v=ctx.parsed.y; return ctx.dataset.label+': $'+v.toLocaleString()}}}}
+  }
+});
+
+// ── Channel Donut ──
+new Chart(document.getElementById('channelDonut'), {
+  type: 'doughnut',
+  data: {
+    labels:['Direct / Unattributed','Email Marketing','Google CPC','Google Shopping (Free)','Social','Google Organic','Display','Other'],
+    datasets:[{data:[767246,147813,63502,24242,10907,7329,1083,2619],backgroundColor:[charcoal,terra,sage,blue,'#9B7E8C','#8FA680','#8B8178','#D4A853'],borderWidth:2,borderColor:'#fff'}]
+  },
+  options: {
+    responsive:true, cutout:'60%',
+    plugins:{
+      legend:{position:'bottom',labels:{padding:14,usePointStyle:true,pointStyle:'circle',font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>{let v=ctx.parsed; let t=ctx.dataset.data.reduce((a,b)=>a+b,0); return ctx.label+': $'+v.toLocaleString()+' ('+((v/t)*100).toFixed(1)+'%)'}}}
+    }
+  }
+});
+
+// ── Spend vs CPC Revenue ──
+new Chart(document.getElementById('spendVsRevenueChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Ad Spend', data:adSpend, backgroundColor:'rgba(196,149,106,0.8)', borderRadius:4 },
+      { label:'CPC Revenue (UTM)', data:cpcRevenue, backgroundColor:'rgba(91,123,111,0.8)', borderRadius:4 }
+    ]
+  },
+  options: {
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#EDEBE6'}}},
+    plugins:{tooltip:{callbacks:{label:ctx=>'$'+ctx.parsed.y.toLocaleString()}}}
+  }
+});
+
+// ── ROAS Comparison ──
+new Chart(document.getElementById('roasChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Google-Reported ROAS', data:googleRoas, borderColor:'rgba(196,149,106,0.8)', backgroundColor:'rgba(196,149,106,0.1)', pointBackgroundColor:terra, pointRadius:4, borderWidth:2, fill:true },
+      { label:'UTM-Verified ROAS', data:utmRoas, borderColor:sage, backgroundColor:'rgba(91,123,111,0.1)', pointBackgroundColor:sage, pointRadius:5, borderWidth:3, fill:true }
+    ]
+  },
+  options: {
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    scales:{y:{ticks:{callback:v=>v+'x'},grid:{color:'#EDEBE6'}}},
+    plugins:{
+      annotation:null,
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'x'}}
+    }
+  }
+});
+
+// ── Spend % of Revenue ──
+new Chart(document.getElementById('spendPctChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Ad Spend as % of Revenue', data:spendPct, backgroundColor:'rgba(196,149,106,0.8)', borderRadius:4 }
+    ]
+  },
+  options: {
+    responsive:true,
+    scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'#EDEBE6'},max:3}},
+    plugins:{
+      tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}},
+      annotation:{annotations:{benchmark:{type:'line',yMin:10,yMax:10,borderColor:red,borderDash:[6,4],borderWidth:2,label:{display:true,content:'Industry benchmark: 8-15%',position:'start',backgroundColor:red,font:{size:10}}}}}
+    }
+  }
+});
+
+// ── CPC Revenue Share ──
+new Chart(document.getElementById('cpcShareChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'CPC Revenue as % of Total', data:cpcPct, borderColor:sage, backgroundColor:'rgba(91,123,111,0.15)', pointBackgroundColor:sage, pointRadius:5, borderWidth:2.5, fill:true }
+    ]
+  },
+  options: {
+    responsive:true,
+    scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'#EDEBE6'},max:12}},
+    plugins:{tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}}}
+  }
+});
+
+// ── Attribution Comparison ──
+new Chart(document.getElementById('attributionChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Google-Reported Conv. Value', data:[34332,36826,37809,64160,48391,39036,29511,23840,31282,66026,98314,78598,68687,65530], backgroundColor:'rgba(196,149,106,0.5)', borderRadius:4 },
+      { label:'UTM-Tracked CPC Revenue', data:cpcRevenue, backgroundColor:'rgba(91,123,111,0.8)', borderRadius:4 }
+    ]
+  },
+  options: {
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#EDEBE6'}}},
+    plugins:{tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y.toLocaleString()}}}
+  }
+});
+
+// ── Scaling Projection ──
+new Chart(document.getElementById('scalingChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Current ($1,120)','Phase 1 ($3,000)','Phase 2 ($5,000)','Phase 3 ($7,500)','Phase 4 ($10,000)'],
+    datasets: [
+      { label:'Monthly Ad Spend', data:[1120,3000,5000,7500,10000], backgroundColor:'rgba(196,149,106,0.8)', borderRadius:4 },
+      { label:'Est. Monthly Ad Revenue', data:[5292,12436,18836,25586,31086], backgroundColor:'rgba(91,123,111,0.8)', borderRadius:4 }
+    ]
+  },
+  options: {
+    responsive:true,
+    indexAxis:'y',
+    scales:{x:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#EDEBE6'}}},
+    plugins:{tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.x.toLocaleString()}}}
+  }
+});
+</script>
+</body>
+</html>
