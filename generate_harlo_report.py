@@ -8,8 +8,8 @@ import csv
 import os
 from datetime import datetime
 
-DATA_DIR = "/Users/devan/Downloads/Harlo Amz"
-OUTPUT_DIR = "/Users/devan/Desktop/Claude Code Agents/Shopify Product Data Analysis/reports"
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "Harlo")
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reports")
 
 def read_csv(filename):
     path = os.path.join(DATA_DIR, filename)
