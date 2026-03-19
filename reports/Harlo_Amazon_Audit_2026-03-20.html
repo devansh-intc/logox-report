@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harlo Amazon Ads Audit — Interconnections</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #5F9598;
+        --accent: #B6D7D8;
+        --dark: #1e2328;
+        --bg: #FAFAFA;
+        --white: #FFFFFF;
+        --border: #CCCCCC;
+        --muted: #6C6C6C;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--dark); font-family: 'Archivo', Calibri, sans-serif; font-size:11pt; line-height:1.5; }
+    .container { max-width:960px; margin:0 auto; padding:32px 24px; }
+
+    /* Header */
+    .report-header {
+        background: var(--dark);
+        padding: 48px 40px 40px;
+        border-radius: 12px;
+        margin-bottom: 32px;
+        position: relative;
+    }
+    .report-header .logo-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+    }
+    .report-header .harlo-logo { height: 44px; }
+    .report-header .agency-badge {
+        font-family: 'Archivo', sans-serif;
+        font-size: 9pt;
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .report-header h1 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 28pt;
+        font-weight: 700;
+        color: var(--white);
+        line-height: 1.2;
+        margin-bottom: 8px;
+    }
+    .report-header .subtitle {
+        color: var(--accent);
+        font-size: 11pt;
+        font-weight: 400;
+    }
+    .report-header .accent-line {
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #B6D7D8, #5F9598);
+        margin-top: 20px;
+        border-radius: 2px;
+    }
+
+    /* Typography */
+    h2 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 16pt;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 40px 0 16px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--accent);
+        line-height: 1.2;
+    }
+    h3 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 13pt;
+        font-weight: 600;
+        margin: 28px 0 12px;
+        color: var(--primary);
+        line-height: 1.2;
+    }
+    p { margin-bottom: 12px; }
+
+    /* KPI Cards */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin:20px 0; }
+    .kpi {
+        background:var(--white);
+        border:1px solid var(--border);
+        border-radius:8px;
+        padding:20px;
+        text-align:center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .kpi-highlight { border-top: 3px solid var(--primary); }
+    .kpi .label { color:var(--muted); font-size:9pt; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; }
+    .kpi .value { font-size:1.6em; font-weight:700; color:var(--dark); }
+    .kpi .sub { font-size:9pt; color:var(--muted); margin-top:4px; }
+
+    /* Cards */
+    .card {
+        background:var(--white);
+        border:1px solid var(--border);
+        border-radius:8px;
+        padding:24px;
+        margin:16px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Alerts — on-brand, no reds/greens/yellows */
+    .alert {
+        border-left:4px solid var(--dark);
+        background: var(--white);
+        padding:16px 20px;
+        border-radius:0 8px 8px 0;
+        margin:16px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .alert-warn {
+        border-left-color: var(--primary);
+        background: rgba(182,215,216,0.15);
+    }
+    .alert-good {
+        border-left-color: var(--accent);
+        background: rgba(182,215,216,0.1);
+    }
+    .alert strong { display:block; margin-bottom:4px; font-weight:700; }
+
+    /* Tables */
+    table { width:100%; border-collapse:collapse; font-size:0.85em; }
+    th {
+        background: var(--dark);
+        color: var(--white);
+        font-weight:600;
+        text-align:left;
+        padding:10px 12px;
+        border-bottom:2px solid var(--border);
+        white-space:nowrap;
+    }
+    td { padding:8px 12px; border-bottom:1px solid var(--border); }
+    tr:nth-child(even) { background: var(--bg); }
+    tr:nth-child(odd) { background: var(--white); }
+    tr:hover { background: rgba(182,215,216,0.15); }
+    .overflow-x { overflow-x:auto; }
+
+    /* Layout */
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+
+    /* Tags */
+    .tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9pt; font-weight:600; }
+    .tag-teal { background:rgba(95,149,152,0.15); color:#5F9598; }
+    .tag-dark { background:rgba(30,35,40,0.1); color:#1e2328; }
+    .tag-accent { background:rgba(182,215,216,0.3); color:#5F9598; }
+    .tag-loss { background:#1e2328; color:#fff; padding:2px 8px; border-radius:3px; }
+
+    /* Recommendation Boxes */
+    .rec-box {
+        background:var(--white);
+        border:1px solid var(--border);
+        border-radius:8px;
+        padding:20px 24px;
+        margin:12px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .rec-box h4 {
+        color:var(--primary);
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 13pt;
+        margin-bottom:8px;
+    }
+    .rec-box ul { margin-left:18px; }
+    .rec-box li { margin-bottom:6px; line-height:1.5; }
+
+    /* Table of Contents */
+    .toc {
+        background:var(--white);
+        border:1px solid var(--border);
+        border-radius:8px;
+        padding:24px 28px;
+        margin:0 0 32px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .toc ol { margin-left:20px; }
+    .toc li { margin:8px 0; }
+    .toc a { color:var(--primary); text-decoration:none; font-weight:500; }
+    .toc a:hover { text-decoration:underline; }
+
+    /* Footer */
+    .footer {
+        background: var(--dark);
+        color: var(--accent);
+        text-align:center;
+        font-size:9pt;
+        margin-top:48px;
+        padding:32px 24px;
+        border-radius:8px;
+    }
+    .footer a { color: var(--white); text-decoration:none; font-weight:600; }
+    .footer a:hover { text-decoration:underline; }
+    .footer .divider { color: var(--muted); margin: 0 8px; }
+
+    /* Breakeven indicator */
+    .breakeven-tag {
+        display:inline-block;
+        background: var(--dark);
+        color: var(--white);
+        font-size:9pt;
+        font-weight:700;
+        padding:2px 8px;
+        border-radius:3px;
+    }
+
+    /* Section dividers */
+    hr.section-divider {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, #B6D7D8, #5F9598);
+        margin: 32px 0;
+    }
+
+    /* Print */
+    @media print {
+        body { font-size:10pt; }
+        .report-header { background: var(--dark) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .container { max-width:100%; padding:0; }
+        .kpi, .card, .rec-box, .toc { box-shadow:none; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Report Header -->
+<div class="report-header">
+    <div class="logo-row">
+        <img src="https://drinkharlo.com/cdn/shop/files/harlo_logo_white.png?v=1701873294&width=600" alt="Harlo" class="harlo-logo">
+        <div class="agency-badge">Prepared by Interconnections</div>
+    </div>
+    <h1>Amazon Ads Audit</h1>
+    <p class="subtitle">Reporting Period: February 1 – March 19, 2026 &nbsp;&bull;&nbsp; Generated March 20, 2026</p>
+    <div class="accent-line"></div>
+</div>
+
+<div class="toc">
+<strong style="font-family:'Playfair Display',Georgia,serif;font-size:13pt;">Table of Contents</strong>
+<ol>
+<li><a href="#exec">Executive Summary</a></li>
+<li><a href="#kpis">Account Overview & KPIs</a></li>
+<li><a href="#targets">ACOS / ROAS Target Framework</a></li>
+<li><a href="#structure">Campaign Structure Analysis</a></li>
+<li><a href="#performance">Campaign Performance Breakdown</a></li>
+<li><a href="#branded">Branded vs Non-Branded Split</a></li>
+<li><a href="#products">Product-Level Performance</a></li>
+<li><a href="#placements">Placement Analysis</a></li>
+<li><a href="#search">Search Term Analysis</a></li>
+<li><a href="#bids">Bid Optimization</a></li>
+<li><a href="#perpetua">Perpetua AI Platform Assessment</a></li>
+<li><a href="#buybox">Business Report & Buy Box Alert</a></li>
+<li><a href="#recs">Strategic Recommendations</a></li>
+</ol>
+</div>
+
+<!-- ========== 1. EXECUTIVE SUMMARY ========== -->
+<h2 id="exec">1. Executive Summary</h2>
+<div class="card">
+<p>Harlo spent <strong>$8,610.11</strong> across all Amazon ad types during Feb 1 – Mar 19, generating <strong>$19,304.20</strong> in attributed sales at an overall <strong>44.6% ACOS</strong> (2.24x ROAS). With a <strong>40% breakeven ACOS</strong>, the account is losing money on advertising at current levels — the overall ACOS is 4.6% above breakeven. The account is heavily reliant on branded search: 57.6% of ad-attributed sales come from branded campaigns (14.5% ACOS — profitable), while non-branded campaigns operate at 85.4% ACOS — burning ~$0.53 for every $1 spent.</p>
+
+<div style="margin-top:16px;">
+<p><strong>Three critical issues demand immediate action:</strong></p>
+<ol style="margin-left:20px;margin-top:8px;">
+<li style="margin-bottom:8px;"><strong>HLP Audience Auto campaign hemorrhaging budget.</strong> A single auto campaign (HLP Audience - Jars) is consuming <strong>$2,552.58</strong> (29.6% of total spend) at 113% ACOS. This needs to be paused or drastically restructured immediately.</li>
+<li style="margin-bottom:8px;"><strong>Buy Box percentage dropped sharply in March</strong> — from 98.8% average in February to 93.7% in March, with lows hitting 84.9%. This means Harlo is paying for ad clicks that may not result in the sale going to Harlo.</li>
+<li style="margin-bottom:8px;"><strong>Extreme campaign fragmentation.</strong> The account has 142 total campaigns, but only 50 have any spend. 92 campaigns have zero impressions or spend. This dilutes budget, makes optimization impossible, and creates massive management overhead.</li>
+</ol>
+</div>
+</div>
+
+<!-- ========== 2. ACCOUNT KPIs ========== -->
+<h2 id="kpis">2. Account Overview & KPIs</h2>
+<div class="kpi-grid">
+    <div class="kpi kpi-highlight"><div class="label">Total Ad Spend</div><div class="value">$8,610.11</div><div class="sub">All campaign types</div></div>
+    <div class="kpi kpi-highlight"><div class="label">Ad-Attributed Sales</div><div class="value">$19,304.20</div></div>
+    <div class="kpi kpi-highlight"><div class="label">Overall ACOS</div><div class="value"><span class="breakeven-tag">44.6%</span></div><div class="sub">Breakeven: 40%</div></div>
+    <div class="kpi kpi-highlight"><div class="label">Overall ROAS</div><div class="value">2.24x</div><div class="sub">Breakeven: 2.5x</div></div>
+    <div class="kpi"><div class="label">Total Orders</div><div class="value">567</div></div>
+    <div class="kpi"><div class="label">Avg CPC</div><div class="value">$2.69</div></div>
+    <div class="kpi"><div class="label">CTR</div><div class="value">0.5%</div></div>
+    <div class="kpi"><div class="label">CVR (Clicks&rarr;Orders)</div><div class="value">17.7%</div></div>
+</div>
+
+<h3>Spend by Campaign Type</h3>
+<div class="kpi-grid">
+    <div class="kpi"><div class="label">Sponsored Products</div><div class="value">$7,663.24</div><div class="sub">Sales: $17,410.75 | ACOS: 44.0%</div></div>
+    <div class="kpi"><div class="label">Sponsored Brands</div><div class="value">$933.05</div><div class="sub">Sales: $1,893.45 | ACOS: 49.3%</div></div>
+    <div class="kpi"><div class="label">Sponsored Display</div><div class="value">$13.82</div><div class="sub">Sales: $0.00 | ACOS: —</div></div>
+</div>
+
+<!-- ========== 3. TARGET FRAMEWORK ========== -->
+<h2 id="targets">3. ACOS / ROAS Target Framework</h2>
+<div class="card">
+<p><strong>Breakeven ACOS: 40%.</strong> Any campaign running above 40% ACOS is losing money on every sale. This is the hard ceiling — not a "stretch goal." All targets below are built from this constraint.</p>
+<p style="margin-top:8px;">Harlo's 3-in-1 Performance Hydration Drink Mix (Electrolytes + Creatine + Collagen) is available in four flavors. Pricing: Jars at $44.95, Stick Packs at $34.95, 12-Pack Sachets (HVBX) ~$21.95, 4-Pack Sachets (HVPK) ~$19.95. The product has 268 reviews at 4.63 stars.</p>
+<table style="margin-top:16px;">
+<tr><th>Campaign Type</th><th>ACOS Target</th><th>ROAS Target</th><th>Rationale</th></tr>
+<tr><td><span class="tag tag-teal">Branded Defense</span></td><td style="color:var(--primary);font-weight:700">&le; 15%</td><td style="color:var(--primary);font-weight:700">&ge; 6.5x</td><td>Protect brand search at lowest cost. Currently achieving 5.7–14.1% — on track and profitable.</td></tr>
+<tr><td><span class="tag tag-dark">Non-Branded Offense</span></td><td style="font-weight:700">&le; 30%</td><td style="font-weight:700">&ge; 3.3x</td><td>Must stay below 40% breakeven. 30% target preserves margin while scaling non-branded.</td></tr>
+<tr><td><span class="tag tag-teal">Product Targeting (Defense)</span></td><td style="color:var(--primary);font-weight:700">&le; 20%</td><td style="color:var(--primary);font-weight:700">&ge; 5.0x</td><td>High-intent placement on own/competitor PDPs — should be highly profitable.</td></tr>
+<tr><td><span class="tag tag-accent">Auto Discovery</span></td><td style="font-weight:700">&le; 40%</td><td style="font-weight:700">&ge; 2.5x</td><td>Exploratory — acceptable at breakeven for keyword/ASIN discovery only.</td></tr>
+<tr><td style="font-weight:700;border-top:2px solid var(--dark)">Overall Account</td><td style="font-weight:700;color:var(--primary);border-top:2px solid var(--dark)">&le; 25%</td><td style="font-weight:700;color:var(--primary);border-top:2px solid var(--dark)">&ge; 4.0x</td><td style="border-top:2px solid var(--dark)">Blended target: branded pulls average down, non-branded must stay under 40%.</td></tr>
+</table>
+<p style="margin-top:12px;font-size:9pt;color:var(--muted)"><strong>Current account ACOS is 44.6% — 4.6% above breakeven.</strong> The account is losing money on advertising at current levels. Branded campaigns (14.5% ACOS) are profitable; non-branded campaigns (85.4% ACOS) are burning ~$0.53 for every $1 spent.</p>
+</div>
+
+<!-- ========== 4. CAMPAIGN STRUCTURE ========== -->
+<h2 id="structure">4. Campaign Structure Analysis</h2>
+
+<div class="alert">
+<strong>Problem: Extreme Campaign Fragmentation</strong>
+The account contains <strong>142 campaigns</strong> — 29 enabled, 111 paused — but only <strong>50</strong> generated any spend this period. 92 campaigns had zero spend. This fragments data, prevents algorithmic learning, and creates unmanageable optimization overhead.
+</div>
+
+<h3>Portfolio Breakdown</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Portfolio</th><th style="text-align:right">Total Campaigns</th><th style="text-align:right">With Spend</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th></tr>
+<tr>
+            <td>Jars</td>
+            <td style="text-align:right">57</td>
+            <td style="text-align:right">15</td>
+            <td style="text-align:right">$4,550.63</td>
+            <td style="text-align:right">$4,992.15</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">91.2%</td>
+        </tr><tr>
+            <td>Sachets</td>
+            <td style="text-align:right">44</td>
+            <td style="text-align:right">20</td>
+            <td style="text-align:right">$1,229.06</td>
+            <td style="text-align:right">$3,587.35</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">34.3%</td>
+        </tr><tr>
+            <td>No Portfolio</td>
+            <td style="text-align:right">13</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">$1,182.05</td>
+            <td style="text-align:right">$2,745.80</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">43.0%</td>
+        </tr><tr>
+            <td>Multi</td>
+            <td style="text-align:right">18</td>
+            <td style="text-align:right">2</td>
+            <td style="text-align:right">$994.55</td>
+            <td style="text-align:right">$7,022.35</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">14.2%</td>
+        </tr><tr>
+            <td>Stick Packs</td>
+            <td style="text-align:right">10</td>
+            <td style="text-align:right">9</td>
+            <td style="text-align:right">$653.82</td>
+            <td style="text-align:right">$956.55</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">68.4%</td>
+        </tr>
+</table>
+</div>
+
+<div class="rec-box" style="margin-top:20px;">
+<h4>Structure Recommendations</h4>
+<ul>
+<li><strong>Consolidate campaigns aggressively.</strong> The Jars portfolio alone has 40+ campaigns. Merge by intent: 1 Branded Exact, 1 Branded Broad/Phrase, 1 Non-Branded Phrase, 1 Auto (close+loose), 1 Product Targeting per product line.</li>
+<li><strong>Eliminate redundant PT campaigns.</strong> There are 7 separate PT campaigns for 4-Packs and 7 for 12-Packs (PT 1 through PT 7). Consolidate each into a single PT campaign with ad groups organized by targeting strategy.</li>
+<li><strong>Fix portfolio naming.</strong> "Bottel" should be "Bottle". Create a proper portfolio structure: Jars, Sachets (rename from product format), Stick Packs, Bottle, Brand Defense.</li>
+<li><strong>Archive zero-activity campaigns.</strong> 92 campaigns with no spend should be archived to reduce clutter.</li>
+</ul>
+</div>
+
+<!-- ========== 5. CAMPAIGN PERFORMANCE ========== -->
+<h2 id="performance">5. Campaign Performance Breakdown</h2>
+
+<h3>Top 20 Campaigns by Spend</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Campaign</th><th>Type</th><th>Portfolio</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">ROAS</th><th style="text-align:right">Orders</th></tr>
+<tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - July 20...</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$2,552.58</td>
+            <td style="text-align:right">$2,249.25</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">113.5%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.88</td>
+            <td style="text-align:right">55</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - MMT - Branded - MDF - Multi - Jars">NM - SP - MMT - Branded - MDF - Multi - Jars</td>
+            <td>SP</td>
+            <td>Multi</td>
+            <td style="text-align:right">$969.82</td>
+            <td style="text-align:right">$6,864.55</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">14.1%</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">7.08</td>
+            <td style="text-align:right">165</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Auto - All Products Test w/o Collagen - March 2026">NM - SP - Auto - All Products Test w/o Collagen - March 2026</td>
+            <td>SP</td>
+            <td>—</td>
+            <td style="text-align:right">$649.57</td>
+            <td style="text-align:right">$1,642.50</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">39.5%</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">2.53</td>
+            <td style="text-align:right">41</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SBV - STR - PT 6 - Jars - Jan 2026">NM - SBV - STR - PT 6 - Jars - Jan 2026</td>
+            <td>SB2</td>
+            <td>Jars</td>
+            <td style="text-align:right">$511.83</td>
+            <td style="text-align:right">$829.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">61.7%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">1.62</td>
+            <td style="text-align:right">20</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Phrase - All Products Test w/o Collagen - March 2026">NM - SP - Phrase - All Products Test w/o Collagen - March 2026</td>
+            <td>SP</td>
+            <td>—</td>
+            <td style="text-align:right">$465.91</td>
+            <td style="text-align:right">$144.75</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">321.9%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.31</td>
+            <td style="text-align:right">5</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM  - SP - 12 Pack - MMT - MDF - Branded - May 2025 - B0DY6K7RQH">NM  - SP - 12 Pack - MMT - MDF - Branded - May 2025 - B0DY6K7RQH</td>
+            <td>SP</td>
+            <td>Sachets</td>
+            <td style="text-align:right">$457.55</td>
+            <td style="text-align:right">$2,450.10</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">18.7%</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">5.35</td>
+            <td style="text-align:right">112</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="AUTO TEST MARCH 17 26">AUTO TEST MARCH 17 26</td>
+            <td>SP</td>
+            <td>Stick Packs</td>
+            <td style="text-align:right">$420.10</td>
+            <td style="text-align:right">$139.80</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">300.5%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.33</td>
+            <td style="text-align:right">4</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Citrus Salt - Exact - MDF - Offense - Harvest - Jars - Oct 2024">NM - SP - Citrus Salt - Exact - MDF - Offense - Harvest - Jars - ...</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$276.98</td>
+            <td style="text-align:right">$180.70</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">153.3%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.65</td>
+            <td style="text-align:right">6</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Auto - CAC  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - CAC  Audience - Multi - Offense - Jars - July 20...</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$246.60</td>
+            <td style="text-align:right">$378.45</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">65.2%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">1.53</td>
+            <td style="text-align:right">11</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - STR - Phrase - Jars - Jan 2026">NM - SP - STR - Phrase - Jars - Jan 2026</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$244.49</td>
+            <td style="text-align:right">$521.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">46.8%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">2.13</td>
+            <td style="text-align:right">14</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Auto - PBP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - PBP  Audience - Multi - Offense - Jars - July 20...</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$187.10</td>
+            <td style="text-align:right">$191.70</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">97.6%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">1.02</td>
+            <td style="text-align:right">6</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Citrus Salt - BMM - Offense - Jars - Aug 2024">NM - SP - Citrus Salt - BMM - Offense - Jars - Aug 2024</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$160.59</td>
+            <td style="text-align:right">$110.85</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">144.9%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.69</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM  - SP - GPT - 12 Pack - Exact - B0DY6K7RQH - Jan 2026">NM  - SP - GPT - 12 Pack - Exact - B0DY6K7RQH - Jan 2026</td>
+            <td>SP</td>
+            <td>Sachets</td>
+            <td style="text-align:right">$128.38</td>
+            <td style="text-align:right">$34.85</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">368.4%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.27</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM  - SP - 12 Pack - Phrase - MDF - B0DY6K7RQH - Sep 2025">NM  - SP - 12 Pack - Phrase - MDF - B0DY6K7RQH - Sep 2025</td>
+            <td>SP</td>
+            <td>Sachets</td>
+            <td style="text-align:right">$126.73</td>
+            <td style="text-align:right">$362.25</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">35.0%</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">2.86</td>
+            <td style="text-align:right">15</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SBV - STR - PT 3 - Jars - Jan 2026">NM - SBV - STR - PT 3 - Jars - Jan 2026</td>
+            <td>SB2</td>
+            <td>Jars</td>
+            <td style="text-align:right">$97.87</td>
+            <td style="text-align:right">$191.70</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">51.1%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">1.96</td>
+            <td style="text-align:right">6</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - STR - PT 5 - Jars - Jan 2026">NM - SP - STR - PT 5 - Jars - Jan 2026</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$92.17</td>
+            <td style="text-align:right">$47.90</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">192.4%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.52</td>
+            <td style="text-align:right">2</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM  - SP - GPT - 4 Pack - Exact - B0DJ3J2CKX - Jan 2026">NM  - SP - GPT - 4 Pack - Exact - B0DJ3J2CKX - Jan 2026</td>
+            <td>SP</td>
+            <td>Sachets</td>
+            <td style="text-align:right">$85.33</td>
+            <td style="text-align:right">$57.75</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">147.8%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.68</td>
+            <td style="text-align:right">5</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SP - Phrase 3 - MDF - Jars - Sep 2025">NM - SP - Phrase 3 - MDF - Jars - Sep 2025</td>
+            <td>SP</td>
+            <td>Jars</td>
+            <td style="text-align:right">$83.02</td>
+            <td style="text-align:right">$44.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">184.7%</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">0.54</td>
+            <td style="text-align:right">1</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM - SB - HSA - Phrase - Branded - Stick Packs - Multi - Jan 2026">NM - SB - HSA - Phrase - Branded - Stick Packs - Multi - Jan 2026</td>
+            <td>SB2</td>
+            <td>Stick Packs</td>
+            <td style="text-align:right">$81.11</td>
+            <td style="text-align:right">$359.45</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">22.6%</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">4.43</td>
+            <td style="text-align:right">9</td>
+        </tr><tr>
+            <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;" title="NM  - SP - 4 Pack - Phrase 2 - MDF - B0DJ3J2CKX - Sep 2025">NM  - SP - 4 Pack - Phrase 2 - MDF - B0DJ3J2CKX - Sep 2025</td>
+            <td>SP</td>
+            <td>Sachets</td>
+            <td style="text-align:right">$80.23</td>
+            <td style="text-align:right">$243.80</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">32.9%</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">3.04</td>
+            <td style="text-align:right">17</td>
+        </tr>
+</table>
+</div>
+
+<h3>Underperforming Campaigns (ACOS > 50% — Well Above 40% Breakeven)</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Campaign</th><th>Type</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">Clicks</th></tr>
+<tr>
+            <td title="NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - Ju...</td>
+            <td>SP</td>
+            <td style="text-align:right">$2,552.58</td>
+            <td style="text-align:right">$2,249.25</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">113.5%</span></td>
+            <td style="text-align:right">588</td>
+        </tr><tr>
+            <td title="NM - SBV - STR - PT 6 - Jars - Jan 2026">NM - SBV - STR - PT 6 - Jars - Jan 2026</td>
+            <td>SB2</td>
+            <td style="text-align:right">$511.83</td>
+            <td style="text-align:right">$829.00</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">61.7%</span></td>
+            <td style="text-align:right">116</td>
+        </tr><tr>
+            <td title="NM - SP - Phrase - All Products Test w/o Collagen - March 2026">NM - SP - Phrase - All Products Test w/o Collagen - March 20...</td>
+            <td>SP</td>
+            <td style="text-align:right">$465.91</td>
+            <td style="text-align:right">$144.75</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">321.9%</span></td>
+            <td style="text-align:right">142</td>
+        </tr><tr>
+            <td title="AUTO TEST MARCH 17 26">AUTO TEST MARCH 17 26</td>
+            <td>SP</td>
+            <td style="text-align:right">$420.10</td>
+            <td style="text-align:right">$139.80</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">300.5%</span></td>
+            <td style="text-align:right">70</td>
+        </tr><tr>
+            <td title="NM - SP - Citrus Salt - Exact - MDF - Offense - Harvest - Jars - Oct 2024">NM - SP - Citrus Salt - Exact - MDF - Offense - Harvest - Ja...</td>
+            <td>SP</td>
+            <td style="text-align:right">$276.98</td>
+            <td style="text-align:right">$180.70</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">153.3%</span></td>
+            <td style="text-align:right">48</td>
+        </tr><tr>
+            <td title="NM - SP - Auto - CAC  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - CAC  Audience - Multi - Offense - Jars - Ju...</td>
+            <td>SP</td>
+            <td style="text-align:right">$246.60</td>
+            <td style="text-align:right">$378.45</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">65.2%</span></td>
+            <td style="text-align:right">82</td>
+        </tr><tr>
+            <td title="NM - SP - Auto - PBP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - PBP  Audience - Multi - Offense - Jars - Ju...</td>
+            <td>SP</td>
+            <td style="text-align:right">$187.10</td>
+            <td style="text-align:right">$191.70</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">97.6%</span></td>
+            <td style="text-align:right">67</td>
+        </tr><tr>
+            <td title="NM - SP - Citrus Salt - BMM - Offense - Jars - Aug 2024">NM - SP - Citrus Salt - BMM - Offense - Jars - Aug 2024</td>
+            <td>SP</td>
+            <td style="text-align:right">$160.59</td>
+            <td style="text-align:right">$110.85</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">144.9%</span></td>
+            <td style="text-align:right">30</td>
+        </tr><tr>
+            <td title="NM  - SP - GPT - 12 Pack - Exact - B0DY6K7RQH - Jan 2026">NM  - SP - GPT - 12 Pack - Exact - B0DY6K7RQH - Jan 2026</td>
+            <td>SP</td>
+            <td style="text-align:right">$128.38</td>
+            <td style="text-align:right">$34.85</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">368.4%</span></td>
+            <td style="text-align:right">74</td>
+        </tr><tr>
+            <td title="NM - SBV - STR - PT 3 - Jars - Jan 2026">NM - SBV - STR - PT 3 - Jars - Jan 2026</td>
+            <td>SB2</td>
+            <td style="text-align:right">$97.87</td>
+            <td style="text-align:right">$191.70</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">51.1%</span></td>
+            <td style="text-align:right">26</td>
+        </tr><tr>
+            <td title="NM - SP - STR - PT 5 - Jars - Jan 2026">NM - SP - STR - PT 5 - Jars - Jan 2026</td>
+            <td>SP</td>
+            <td style="text-align:right">$92.17</td>
+            <td style="text-align:right">$47.90</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">192.4%</span></td>
+            <td style="text-align:right">19</td>
+        </tr><tr>
+            <td title="NM  - SP - GPT - 4 Pack - Exact - B0DJ3J2CKX - Jan 2026">NM  - SP - GPT - 4 Pack - Exact - B0DJ3J2CKX - Jan 2026</td>
+            <td>SP</td>
+            <td style="text-align:right">$85.33</td>
+            <td style="text-align:right">$57.75</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">147.8%</span></td>
+            <td style="text-align:right">63</td>
+        </tr><tr>
+            <td title="NM - SP - Phrase 3 - MDF - Jars - Sep 2025">NM - SP - Phrase 3 - MDF - Jars - Sep 2025</td>
+            <td>SP</td>
+            <td style="text-align:right">$83.02</td>
+            <td style="text-align:right">$44.95</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">184.7%</span></td>
+            <td style="text-align:right">17</td>
+        </tr><tr>
+            <td title="NM  - SP - 4 Pack - Auto - CAC  Audience - Offense - B0DJ3J2CKX - July 2025">NM  - SP - 4 Pack - Auto - CAC  Audience - Offense - B0DJ3J2...</td>
+            <td>SP</td>
+            <td style="text-align:right">$76.40</td>
+            <td style="text-align:right">$64.70</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">118.1%</span></td>
+            <td style="text-align:right">102</td>
+        </tr><tr>
+            <td title="NM  - SP - STR - 12 Pack - PT - B0DY6K7RQH - Jan 2026">NM  - SP - STR - 12 Pack - PT - B0DY6K7RQH - Jan 2026</td>
+            <td>SP</td>
+            <td style="text-align:right">$29.81</td>
+            <td style="text-align:right">$14.95</td>
+            <td style="text-align:right"><span style="font-weight:700;background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px">199.4%</span></td>
+            <td style="text-align:right">25</td>
+        </tr>
+</table>
+</div>
+
+<div class="alert">
+<strong>Immediate Action Required: HLP Audience Auto Campaign</strong>
+This single campaign spent <strong>$2,552.58</strong> — 29.6% of total account spend — and returned only $2,249.25 in sales (113% ACOS). It is running on <strong>Fixed bids</strong> with audience-based auto targeting, which means Amazon is spending aggressively on complements/substitutes with no downward bid adjustment. Switch to Dynamic Down or pause immediately.
+</div>
+
+<!-- ========== 6. BRANDED vs NON-BRANDED ========== -->
+<h2 id="branded">6. Branded vs Non-Branded Split</h2>
+<div class="kpi-grid">
+    <div class="kpi" style="border-top:3px solid var(--primary)">
+        <div class="label">Branded Spend</div>
+        <div class="value">$1,612.05</div>
+        <div class="sub">Sales: $11,112.95 | ACOS: <span style="color:var(--primary);font-weight:700">14.5%</span></div>
+    </div>
+    <div class="kpi" style="border-top:3px solid var(--dark)">
+        <div class="label">Non-Branded Spend</div>
+        <div class="value">$6,998.06</div>
+        <div class="sub">Sales: $8,191.25 | ACOS: <span class="breakeven-tag">85.4%</span></div>
+    </div>
+</div>
+
+<h3>Branded Campaign Performance</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">Orders</th></tr>
+<tr>
+            <td title="NM - SP - MMT - Branded - MDF - Multi - Jars">NM - SP - MMT - Branded - MDF - Multi - Jars</td>
+            <td style="text-align:right">$969.82</td>
+            <td style="text-align:right">$6,864.55</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">14.1%</td>
+            <td style="text-align:right">165</td>
+        </tr><tr>
+            <td title="NM  - SP - 12 Pack - MMT - MDF - Branded - May 2025 - B0DY6K7RQH">NM  - SP - 12 Pack - MMT - MDF - Branded - May 2025 - B0DY6K...</td>
+            <td style="text-align:right">$457.55</td>
+            <td style="text-align:right">$2,450.10</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">18.7%</td>
+            <td style="text-align:right">112</td>
+        </tr><tr>
+            <td title="MN - SP - Phrase - Branded - Test w/o Collagen - March 2026">MN - SP - Phrase - Branded - Test w/o Collagen - March 2026</td>
+            <td style="text-align:right">$54.81</td>
+            <td style="text-align:right">$958.55</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">5.7%</td>
+            <td style="text-align:right">18</td>
+        </tr><tr>
+            <td title="NM - SB - HSA - Phrase - Branded - Stick Packs - Multi - Jan 2026">NM - SB - HSA - Phrase - Branded - Stick Packs - Multi - Jan...</td>
+            <td style="text-align:right">$81.11</td>
+            <td style="text-align:right">$359.45</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">22.6%</td>
+            <td style="text-align:right">9</td>
+        </tr><tr>
+            <td title="NM - SP - Phrase - Branded - Stick Packs - Multi - Jan 2026">NM - SP - Phrase - Branded - Stick Packs - Multi - Jan 2026</td>
+            <td style="text-align:right">$24.03</td>
+            <td style="text-align:right">$322.50</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">7.5%</td>
+            <td style="text-align:right">8</td>
+        </tr><tr>
+            <td title="NM - SB - BMM - Oct 2024 - Branded KWs - Multi">NM - SB - BMM - Oct 2024 - Branded KWs - Multi</td>
+            <td style="text-align:right">$24.73</td>
+            <td style="text-align:right">$157.80</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">15.7%</td>
+            <td style="text-align:right">4</td>
+        </tr>
+</table>
+</div>
+
+<div class="alert alert-warn">
+<strong>Branded Dependency Risk</strong>
+57.6% of ad-attributed sales come from branded terms. Branded ACOS is strong at 14.5%, but non-branded campaigns are failing to acquire new customers profitably. The non-branded blended ACOS of <strong>85.4%</strong> — more than 2x the 40% breakeven — means the account is losing money on every non-branded ad dollar. This requires a complete non-branded strategy rethink.
+</div>
+
+<!-- ========== 7. PRODUCT PERFORMANCE ========== -->
+<h2 id="products">7. Product-Level Performance</h2>
+<div class="overflow-x">
+<table>
+<tr><th>SKU</th><th>ASIN</th><th style="text-align:right">Spend</th><th style="text-align:right">Total Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">Orders</th><th style="text-align:right">Adv. SKU Sales</th><th style="text-align:right">Other SKU Sales</th></tr>
+<tr>
+            <td>Citrus Salt Jar - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0D6L13DBT</td>
+            <td style="text-align:right">$1,782.00</td>
+            <td style="text-align:right">$3,661.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">48.7%</td>
+            <td style="text-align:right">88</td>
+            <td style="text-align:right">$2,017.00</td>
+            <td style="text-align:right">$1,644.00</td>
+        </tr><tr>
+            <td>Raspberry Salt Jar - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0D6L2RZNH</td>
+            <td style="text-align:right">$1,563.00</td>
+            <td style="text-align:right">$3,131.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">49.9%</td>
+            <td style="text-align:right">80</td>
+            <td style="text-align:right">$1,829.00</td>
+            <td style="text-align:right">$1,303.00</td>
+        </tr><tr>
+            <td>Watermelon Salt Jar - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0D6L2FPYW</td>
+            <td style="text-align:right">$1,275.00</td>
+            <td style="text-align:right">$2,324.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">54.9%</td>
+            <td style="text-align:right">58</td>
+            <td style="text-align:right">$1,334.00</td>
+            <td style="text-align:right">$991.00</td>
+        </tr><tr>
+            <td>HVBX - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0DY6K7RQH</td>
+            <td style="text-align:right">$1,026.00</td>
+            <td style="text-align:right">$3,172.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">32.3%</td>
+            <td style="text-align:right">147</td>
+            <td style="text-align:right">$2,344.00</td>
+            <td style="text-align:right">$829.00</td>
+        </tr><tr>
+            <td>HVPK</td>
+            <td style="font-family:monospace;font-size:0.8em">B0DJ3J2CKX</td>
+            <td style="text-align:right">$710.00</td>
+            <td style="text-align:right">$637.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">111.5%</td>
+            <td style="text-align:right">49</td>
+            <td style="text-align:right">$319.00</td>
+            <td style="text-align:right">$318.00</td>
+        </tr><tr>
+            <td>Watermelon Salt Stick Packs - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0G45FXJZT</td>
+            <td style="text-align:right">$438.00</td>
+            <td style="text-align:right">$994.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">44.1%</td>
+            <td style="text-align:right">20</td>
+            <td style="text-align:right">$415.00</td>
+            <td style="text-align:right">$580.00</td>
+        </tr><tr>
+            <td>Pineapple Salt Jar - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0D6L3BFJ8</td>
+            <td style="text-align:right">$383.00</td>
+            <td style="text-align:right">$1,681.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">22.8%</td>
+            <td style="text-align:right">40</td>
+            <td style="text-align:right">$1,277.00</td>
+            <td style="text-align:right">$405.00</td>
+        </tr><tr>
+            <td>Citrus Salt Stick Packs - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0G45CG9DD</td>
+            <td style="text-align:right">$313.00</td>
+            <td style="text-align:right">$1,009.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">31.0%</td>
+            <td style="text-align:right">20</td>
+            <td style="text-align:right">$455.00</td>
+            <td style="text-align:right">$555.00</td>
+        </tr><tr>
+            <td>Raspberry Salt Stick Packs - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0G45G1HDF</td>
+            <td style="text-align:right">$242.00</td>
+            <td style="text-align:right">$802.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">30.2%</td>
+            <td style="text-align:right">19</td>
+            <td style="text-align:right">$455.00</td>
+            <td style="text-align:right">$348.00</td>
+        </tr><tr>
+            <td>atermelon Salt Stick Packs - FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0G45FXJZT</td>
+            <td style="text-align:right">$55.00</td>
+            <td style="text-align:right">$280.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">19.6%</td>
+            <td style="text-align:right">7</td>
+            <td style="text-align:right">$105.00</td>
+            <td style="text-align:right">$175.00</td>
+        </tr><tr>
+            <td>BUNDLE-JS-CITRUS</td>
+            <td style="font-family:monospace;font-size:0.8em">B0GG582VPG</td>
+            <td style="text-align:right">$30.00</td>
+            <td style="text-align:right">$110.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">27.3%</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right">$110.00</td>
+        </tr><tr>
+            <td>Stick Sampler CRW</td>
+            <td style="font-family:monospace;font-size:0.8em">B0GGBPZFY1</td>
+            <td style="text-align:right">$7.00</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">—</td>
+            <td style="text-align:right">0</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right">$0.00</td>
+        </tr><tr>
+            <td>HBOTTLE-FBA</td>
+            <td style="font-family:monospace;font-size:0.8em">B0GKB943TS</td>
+            <td style="text-align:right">$6.00</td>
+            <td style="text-align:right">$75.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">8.0%</td>
+            <td style="text-align:right">2</td>
+            <td style="text-align:right">$40.00</td>
+            <td style="text-align:right">$35.00</td>
+        </tr>
+</table>
+</div>
+
+<!-- ========== 8. PLACEMENTS ========== -->
+<h2 id="placements">8. Placement Analysis</h2>
+<div class="overflow-x">
+<table>
+<tr><th>Placement</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:right">ROAS</th><th style="text-align:right">Clicks</th><th style="text-align:right">Orders</th></tr>
+<tr>
+            <td>Top of Search on Amazon</td>
+            <td style="text-align:right">$4,392.00</td>
+            <td style="text-align:right">$11,025.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">39.8%</td>
+            <td style="text-align:right">2.51</td>
+            <td style="text-align:right">1,444</td>
+            <td style="text-align:right">309</td>
+        </tr><tr>
+            <td>Product pages on Amazon</td>
+            <td style="text-align:right">$2,230.00</td>
+            <td style="text-align:right">$4,169.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">53.5%</td>
+            <td style="text-align:right">1.87</td>
+            <td style="text-align:right">974</td>
+            <td style="text-align:right">142</td>
+        </tr><tr>
+            <td>Rest of search on Amazon</td>
+            <td style="text-align:right">$1,196.00</td>
+            <td style="text-align:right">$2,685.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">44.5%</td>
+            <td style="text-align:right">2.24</td>
+            <td style="text-align:right">610</td>
+            <td style="text-align:right">83</td>
+        </tr>
+</table>
+</div>
+
+<div class="rec-box">
+<h4>Placement Recommendations</h4>
+<ul>
+<li><strong>Branded campaigns:</strong> Top-of-Search placements perform exceptionally well (7.8–11.7% ACOS). Increase TOS bid adjustments on branded campaigns to capture more branded real estate.</li>
+<li><strong>Non-branded campaigns:</strong> Product Page placements are where the budget leaks. The HLP Auto campaign alone spent $125 on Product Pages with 0 ROAS. Reduce Product Page bids or use placement-level bid reductions.</li>
+<li><strong>Rest of Search:</strong> Mixed performance. Branded Rest-of-Search is efficient (11.4% ACOS for MMT Branded); non-branded Rest-of-Search is wasteful (181.8% ACOS for HLP Auto). Apply bid modifiers accordingly.</li>
+</ul>
+</div>
+
+<!-- ========== 9. SEARCH TERMS ========== -->
+<h2 id="search">9. Search Term Analysis</h2>
+
+<h3>Profitable Search Terms — Under 40% ACOS (Promote to Manual Exact)</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Search Term</th><th style="text-align:right">Sales</th><th style="text-align:right">Spend</th><th style="text-align:right">ACOS</th><th style="text-align:right">Orders</th></tr>
+<tr>
+            <td>harlo electrolytes</td>
+            <td style="text-align:right">$7,029.00</td>
+            <td style="text-align:right">$1,106.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">15.7%</td>
+            <td style="text-align:right">201</td>
+        </tr><tr>
+            <td>harlo</td>
+            <td style="text-align:right">$2,040.00</td>
+            <td style="text-align:right">$176.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">8.6%</td>
+            <td style="text-align:right">54</td>
+        </tr><tr>
+            <td>harlo electrolytes collagen creatine</td>
+            <td style="text-align:right">$1,268.00</td>
+            <td style="text-align:right">$202.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">15.9%</td>
+            <td style="text-align:right">43</td>
+        </tr><tr>
+            <td>electrolytes</td>
+            <td style="text-align:right">$554.00</td>
+            <td style="text-align:right">$60.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">10.8%</td>
+            <td style="text-align:right">14</td>
+        </tr><tr>
+            <td>harlo electrolytes powder packets</td>
+            <td style="text-align:right">$323.00</td>
+            <td style="text-align:right">$30.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">9.3%</td>
+            <td style="text-align:right">8</td>
+        </tr><tr>
+            <td>creatine electrolyte powder</td>
+            <td style="text-align:right">$205.00</td>
+            <td style="text-align:right">$37.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">18.0%</td>
+            <td style="text-align:right">4</td>
+        </tr><tr>
+            <td>harlo drink mix</td>
+            <td style="text-align:right">$140.00</td>
+            <td style="text-align:right">$7.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">5.0%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>harlo stick packs</td>
+            <td style="text-align:right">$140.00</td>
+            <td style="text-align:right">$1.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">0.7%</td>
+            <td style="text-align:right">1</td>
+        </tr><tr>
+            <td>collagen and electrolytes</td>
+            <td style="text-align:right">$135.00</td>
+            <td style="text-align:right">$32.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">23.7%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>collagen creatine powder</td>
+            <td style="text-align:right">$135.00</td>
+            <td style="text-align:right">$39.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">28.9%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>creatine and collagen</td>
+            <td style="text-align:right">$125.00</td>
+            <td style="text-align:right">$27.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">21.6%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>collagen creatine electrolyte packets</td>
+            <td style="text-align:right">$115.00</td>
+            <td style="text-align:right">$8.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">7.0%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>harlo creatine electrolyte packets</td>
+            <td style="text-align:right">$100.00</td>
+            <td style="text-align:right">$20.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">20.0%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>b0c5jlnvdq</td>
+            <td style="text-align:right">$90.00</td>
+            <td style="text-align:right">$1.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">1.1%</td>
+            <td style="text-align:right">2</td>
+        </tr><tr>
+            <td>b0dtjly8zj</td>
+            <td style="text-align:right">$90.00</td>
+            <td style="text-align:right">$28.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">31.1%</td>
+            <td style="text-align:right">3</td>
+        </tr><tr>
+            <td>harlo pineapple</td>
+            <td style="text-align:right">$90.00</td>
+            <td style="text-align:right">$5.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">5.6%</td>
+            <td style="text-align:right">2</td>
+        </tr><tr>
+            <td>harlo creatine</td>
+            <td style="text-align:right">$78.00</td>
+            <td style="text-align:right">$7.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">9.0%</td>
+            <td style="text-align:right">2</td>
+        </tr><tr>
+            <td>drink harlo</td>
+            <td style="text-align:right">$76.00</td>
+            <td style="text-align:right">$4.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">5.3%</td>
+            <td style="text-align:right">2</td>
+        </tr><tr>
+            <td>creatine packets</td>
+            <td style="text-align:right">$75.00</td>
+            <td style="text-align:right">$18.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">24.0%</td>
+            <td style="text-align:right">5</td>
+        </tr><tr>
+            <td>harlo sticks</td>
+            <td style="text-align:right">$70.00</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">0.0%</td>
+            <td style="text-align:right">2</td>
+        </tr>
+</table>
+</div>
+
+<h3>Negative Keyword Candidates (Spend ≥ $3, Zero Sales)</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Search Term / ASIN</th><th style="text-align:right">Wasted Spend</th><th style="text-align:right">Clicks</th><th style="text-align:right">Impressions</th></tr>
+<tr>
+            <td>gym essentials women</td>
+            <td style="text-align:right">$70.00</td>
+            <td style="text-align:right">22</td>
+            <td style="text-align:right">1,212</td>
+        </tr><tr>
+            <td>energy drink powder</td>
+            <td style="text-align:right">$55.00</td>
+            <td style="text-align:right">15</td>
+            <td style="text-align:right">3,758</td>
+        </tr><tr>
+            <td>electrolyte powder with creatine</td>
+            <td style="text-align:right">$36.00</td>
+            <td style="text-align:right">7</td>
+            <td style="text-align:right">45</td>
+        </tr><tr>
+            <td>electrolytes with salt</td>
+            <td style="text-align:right">$33.00</td>
+            <td style="text-align:right">18</td>
+            <td style="text-align:right">1,410</td>
+        </tr><tr>
+            <td>running accessories for women</td>
+            <td style="text-align:right">$33.00</td>
+            <td style="text-align:right">8</td>
+            <td style="text-align:right">983</td>
+        </tr><tr>
+            <td>electrolyte creatine powder</td>
+            <td style="text-align:right">$31.00</td>
+            <td style="text-align:right">6</td>
+            <td style="text-align:right">15</td>
+        </tr><tr>
+            <td>running essentials for women</td>
+            <td style="text-align:right">$29.00</td>
+            <td style="text-align:right">6</td>
+            <td style="text-align:right">264</td>
+        </tr><tr>
+            <td>citrus electrolyte</td>
+            <td style="text-align:right">$26.00</td>
+            <td style="text-align:right">15</td>
+            <td style="text-align:right">2,799</td>
+        </tr><tr>
+            <td>pre workout powder for women</td>
+            <td style="text-align:right">$26.00</td>
+            <td style="text-align:right">9</td>
+            <td style="text-align:right">1,653</td>
+        </tr><tr>
+            <td>hydration packets</td>
+            <td style="text-align:right">$25.00</td>
+            <td style="text-align:right">21</td>
+            <td style="text-align:right">7,900</td>
+        </tr><tr>
+            <td>collagen and creatine</td>
+            <td style="text-align:right">$24.00</td>
+            <td style="text-align:right">5</td>
+            <td style="text-align:right">43</td>
+        </tr><tr>
+            <td>collagen creatine electrolytes</td>
+            <td style="text-align:right">$24.00</td>
+            <td style="text-align:right">6</td>
+            <td style="text-align:right">20</td>
+        </tr><tr>
+            <td>running accessories</td>
+            <td style="text-align:right">$23.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">229</td>
+        </tr><tr>
+            <td>watermelon salt</td>
+            <td style="text-align:right">$21.00</td>
+            <td style="text-align:right">7</td>
+            <td style="text-align:right">129</td>
+        </tr><tr>
+            <td>b0g7m2sx5s</td>
+            <td style="text-align:right">$20.00</td>
+            <td style="text-align:right">2</td>
+            <td style="text-align:right">45</td>
+        </tr><tr>
+            <td>electrolyte hydration packets - best electrolytes drink mix - sugar free formula</td>
+            <td style="text-align:right">$20.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">7</td>
+        </tr><tr>
+            <td>gym essentials</td>
+            <td style="text-align:right">$20.00</td>
+            <td style="text-align:right">5</td>
+            <td style="text-align:right">113</td>
+        </tr><tr>
+            <td>b0fhl51m61</td>
+            <td style="text-align:right">$19.00</td>
+            <td style="text-align:right">6</td>
+            <td style="text-align:right">450</td>
+        </tr><tr>
+            <td>gym necessities for women</td>
+            <td style="text-align:right">$19.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">57</td>
+        </tr><tr>
+            <td>collagen electrolyte powder</td>
+            <td style="text-align:right">$18.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">12</td>
+        </tr><tr>
+            <td>electrolyte drink mixes</td>
+            <td style="text-align:right">$18.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">2,355</td>
+        </tr><tr>
+            <td>harlo raspberry</td>
+            <td style="text-align:right">$18.00</td>
+            <td style="text-align:right">6</td>
+            <td style="text-align:right">97</td>
+        </tr><tr>
+            <td>protein electrolytes collagen</td>
+            <td style="text-align:right">$18.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">14</td>
+        </tr><tr>
+            <td>collagen with electrolytes</td>
+            <td style="text-align:right">$17.00</td>
+            <td style="text-align:right">3</td>
+            <td style="text-align:right">5</td>
+        </tr><tr>
+            <td>electrolytes powder with creatine</td>
+            <td style="text-align:right">$16.00</td>
+            <td style="text-align:right">4</td>
+            <td style="text-align:right">13</td>
+        </tr>
+</table>
+</div>
+
+<div class="rec-box">
+<h4>Search Term Recommendations</h4>
+<ul>
+<li><strong>Add top performers as exact match keywords</strong> in dedicated manual campaigns with optimized bids. Terms like "creatine and electrolytes", "harlo electrolytes collagen", and "creatine and collagen" are converting well and should be scaled.</li>
+<li><strong>Negate all ASIN-based search terms</strong> appearing in keyword campaigns where they match as substitutes/complements with zero sales. These are wasting significant budget in auto campaigns.</li>
+<li><strong>Negate irrelevant category terms</strong> like generic supplement ASINs, competitor product ASINs with no conversion history, and broad category terms that don't convert (e.g., "pre workout powder", "energy drink powder").</li>
+</ul>
+</div>
+
+<!-- ========== 10. BID OPTIMIZATION ========== -->
+<h2 id="bids">10. Bid Optimization</h2>
+<div class="overflow-x">
+<table>
+<tr><th>Target</th><th>Campaign</th><th style="text-align:right">Bid</th><th style="text-align:right">Suggested</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">ACOS</th><th style="text-align:center">Action</th></tr>
+<tr>
+            <td title="close-match">close-match</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - HLP  Audience - Mu...</td>
+            <td style="text-align:right">$1.36</td>
+            <td style="text-align:right">$3.47</td>
+            <td style="text-align:right">$1,599.76</td>
+            <td style="text-align:right">$1,396.25</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">114.6%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="loose-match">loose-match</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - HLP  Audience - Mu...</td>
+            <td style="text-align:right">$1.26</td>
+            <td style="text-align:right">$3.80</td>
+            <td style="text-align:right">$880.15</td>
+            <td style="text-align:right">$853.00</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">103.2%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="harlo electrolytes">harlo electrolytes</td>
+            <td style="font-size:0.8em" title="NM - SP - MMT - Branded - MDF - Multi - Jars">NM - SP - MMT - Branded - MDF - Mul...</td>
+            <td style="text-align:right">$3.20</td>
+            <td style="text-align:right">$2.91</td>
+            <td style="text-align:right">$617.28</td>
+            <td style="text-align:right">$3,829.20</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">16.1%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9650; Increase</span></td>
+        </tr><tr>
+            <td title="+harlo">+harlo</td>
+            <td style="font-size:0.8em" title="NM  - SP - 12 Pack - MMT - MDF - Branded - May 2025 - B0DY6K7RQH">NM  - SP - 12 Pack - MMT - MDF - Br...</td>
+            <td style="text-align:right">$2.26</td>
+            <td style="text-align:right">$4.22</td>
+            <td style="text-align:right">$457.55</td>
+            <td style="text-align:right">$2,450.10</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">18.7%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9650; Increase</span></td>
+        </tr><tr>
+            <td title="close-match">close-match</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - All Products Test w/o Collagen - March 2026">NM - SP - Auto - All Products Test ...</td>
+            <td style="text-align:right">$2.41</td>
+            <td style="text-align:right">$2.82</td>
+            <td style="text-align:right">$397.59</td>
+            <td style="text-align:right">$1,502.90</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">26.5%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9644; Maintain</span></td>
+        </tr><tr>
+            <td title="substitutes">substitutes</td>
+            <td style="font-size:0.8em" title="AUTO TEST MARCH 17 26">AUTO TEST MARCH 17 26</td>
+            <td style="text-align:right">$1.83</td>
+            <td style="text-align:right">$1.32</td>
+            <td style="text-align:right">$356.55</td>
+            <td style="text-align:right">$104.85</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">340.1%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="+harlo">+harlo</td>
+            <td style="font-size:0.8em" title="NM - SP - MMT - Branded - MDF - Multi - Jars">NM - SP - MMT - Branded - MDF - Mul...</td>
+            <td style="text-align:right">$3.25</td>
+            <td style="text-align:right">$4.22</td>
+            <td style="text-align:right">$316.31</td>
+            <td style="text-align:right">$3,035.35</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">10.4%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9650; Increase</span></td>
+        </tr><tr>
+            <td title="loose-match">loose-match</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - All Products Test w/o Collagen - March 2026">NM - SP - Auto - All Products Test ...</td>
+            <td style="text-align:right">$0.87</td>
+            <td style="text-align:right">$3.37</td>
+            <td style="text-align:right">$251.98</td>
+            <td style="text-align:right">$139.60</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">180.5%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="substitutes">substitutes</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - CAC  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - CAC  Audience - Mu...</td>
+            <td style="text-align:right">$1.14</td>
+            <td style="text-align:right">$3.42</td>
+            <td style="text-align:right">$197.74</td>
+            <td style="text-align:right">$288.55</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">68.5%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="electrolyte creatine">electrolyte creatine</td>
+            <td style="font-size:0.8em" title="NM - SP - Citrus Salt - Exact - MDF - Offense - Harvest - Jars - Oct 2024">NM - SP - Citrus Salt - Exact - MDF...</td>
+            <td style="text-align:right">$2.51</td>
+            <td style="text-align:right">$2.44</td>
+            <td style="text-align:right">$184.75</td>
+            <td style="text-align:right">$170.75</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">108.2%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="loose-match">loose-match</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - PBP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - PBP  Audience - Mu...</td>
+            <td style="text-align:right">$0.81</td>
+            <td style="text-align:right">$3.80</td>
+            <td style="text-align:right">$181.30</td>
+            <td style="text-align:right">$191.70</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">94.6%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="electrolyte drink mix">electrolyte drink mix</td>
+            <td style="font-size:0.8em" title="NM - SP - Phrase - All Products Test w/o Collagen - March 2026">NM - SP - Phrase - All Products Tes...</td>
+            <td style="text-align:right">$2.11</td>
+            <td style="text-align:right">$8.06</td>
+            <td style="text-align:right">$170.86</td>
+            <td style="text-align:right">$34.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">488.9%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="electrolyte packets">electrolyte packets</td>
+            <td style="font-size:0.8em" title="NM  - SP - GPT - 12 Pack - Exact - B0DY6K7RQH - Jan 2026">NM  - SP - GPT - 12 Pack - Exact - ...</td>
+            <td style="text-align:right">$0.68</td>
+            <td style="text-align:right">$7.08</td>
+            <td style="text-align:right">$107.20</td>
+            <td style="text-align:right">$34.85</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">307.6%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="energy drink powder">energy drink powder</td>
+            <td style="font-size:0.8em" title="NM - SP - Phrase - All Products Test w/o Collagen - March 2026">NM - SP - Phrase - All Products Tes...</td>
+            <td style="text-align:right">$1.85</td>
+            <td style="text-align:right">$7.06</td>
+            <td style="text-align:right">$88.16</td>
+            <td style="text-align:right">$19.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">441.9%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="asin="B0F257BKKB"">asin="B0F257BKKB"</td>
+            <td style="font-size:0.8em" title="NM - SP - STR - PT 5 - Jars - Jan 2026">NM - SP - STR - PT 5 - Jars - Jan 2...</td>
+            <td style="text-align:right">$1.66</td>
+            <td style="text-align:right">$1.92</td>
+            <td style="text-align:right">$87.01</td>
+            <td style="text-align:right">$47.90</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">181.6%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="electrolytes powder with">electrolytes powder with</td>
+            <td style="font-size:0.8em" title="NM - SP - Phrase 3 - MDF - Jars - Sep 2025">NM - SP - Phrase 3 - MDF - Jars - S...</td>
+            <td style="text-align:right">$1.39</td>
+            <td style="text-align:right">$10.00</td>
+            <td style="text-align:right">$83.02</td>
+            <td style="text-align:right">$44.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">184.7%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="+electrolytes +creatine +powder">+electrolytes +creatine +powder</td>
+            <td style="font-size:0.8em" title="NM - SP - Citrus Salt - BMM - Offense - Jars - Aug 2024">NM - SP - Citrus Salt - BMM - Offen...</td>
+            <td style="text-align:right">$2.12</td>
+            <td style="text-align:right">$7.14</td>
+            <td style="text-align:right">$73.64</td>
+            <td style="text-align:right">$32.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">223.5%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="creatine and collagen">creatine and collagen</td>
+            <td style="font-size:0.8em" title="NM  - SP - 12 Pack - Phrase - MDF - B0DY6K7RQH - Sep 2025">NM  - SP - 12 Pack - Phrase - MDF -...</td>
+            <td style="text-align:right">$1.99</td>
+            <td style="text-align:right">$2.34</td>
+            <td style="text-align:right">$70.47</td>
+            <td style="text-align:right">$232.55</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">30.3%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9644; Maintain</span></td>
+        </tr><tr>
+            <td title="complements">complements</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - HLP  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - HLP  Audience - Mu...</td>
+            <td style="text-align:right">$0.76</td>
+            <td style="text-align:right">$1.79</td>
+            <td style="text-align:right">$70.25</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">—</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="creatine women">creatine women</td>
+            <td style="font-size:0.8em" title="NM - SP - Phrase - All Products Test w/o Collagen - March 2026">NM - SP - Phrase - All Products Tes...</td>
+            <td style="text-align:right">$1.30</td>
+            <td style="text-align:right">$4.13</td>
+            <td style="text-align:right">$68.37</td>
+            <td style="text-align:right">$54.90</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">124.5%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="creatine powder">creatine powder</td>
+            <td style="font-size:0.8em" title="NM - SP - Phrase - All Products Test w/o Collagen - March 2026">NM - SP - Phrase - All Products Tes...</td>
+            <td style="text-align:right">$1.32</td>
+            <td style="text-align:right">$7.77</td>
+            <td style="text-align:right">$67.47</td>
+            <td style="text-align:right">$34.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">193.0%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="creatine and electrolytes">creatine and electrolytes</td>
+            <td style="font-size:0.8em" title="NM - SP - STR - Phrase - Jars - Jan 2026">NM - SP - STR - Phrase - Jars - Jan...</td>
+            <td style="text-align:right">$2.42</td>
+            <td style="text-align:right">$9.18</td>
+            <td style="text-align:right">$61.81</td>
+            <td style="text-align:right">$247.70</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">25.0%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9650; Increase</span></td>
+        </tr><tr>
+            <td title="+electrolytes +powder +creatine">+electrolytes +powder +creatine</td>
+            <td style="font-size:0.8em" title="NM - SP - Citrus Salt - BMM - Offense - Jars - Aug 2024">NM - SP - Citrus Salt - BMM - Offen...</td>
+            <td style="text-align:right">$2.12</td>
+            <td style="text-align:right">$6.21</td>
+            <td style="text-align:right">$61.69</td>
+            <td style="text-align:right">$32.95</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">187.2%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="complements">complements</td>
+            <td style="font-size:0.8em" title="NM  - SP - 4 Pack - Auto - CAC  Audience - Offense - B0DJ3J2CKX - July 2025">NM  - SP - 4 Pack - Auto - CAC  Aud...</td>
+            <td style="text-align:right">$0.33</td>
+            <td style="text-align:right">$1.05</td>
+            <td style="text-align:right">$58.77</td>
+            <td style="text-align:right">$39.90</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">147.3%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="harlo electrolytes">harlo electrolytes</td>
+            <td style="font-size:0.8em" title="NM - SP - STR - Phrase - Jars - Jan 2026">NM - SP - STR - Phrase - Jars - Jan...</td>
+            <td style="text-align:right">$3.02</td>
+            <td style="text-align:right">$2.82</td>
+            <td style="text-align:right">$56.33</td>
+            <td style="text-align:right">$209.40</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">26.9%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9644; Maintain</span></td>
+        </tr><tr>
+            <td title="harlo">harlo</td>
+            <td style="font-size:0.8em" title="MN - SP - Phrase - Branded - Test w/o Collagen - March 2026">MN - SP - Phrase - Branded - Test w...</td>
+            <td style="text-align:right">$1.60</td>
+            <td style="text-align:right">$3.37</td>
+            <td style="text-align:right">$54.81</td>
+            <td style="text-align:right">$958.55</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">5.7%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9650; Increase</span></td>
+        </tr><tr>
+            <td title="loose-match">loose-match</td>
+            <td style="font-size:0.8em" title="NM - SP - Auto - CAC  Audience - Multi - Offense - Jars - July 2025">NM - SP - Auto - CAC  Audience - Mu...</td>
+            <td style="text-align:right">$0.63</td>
+            <td style="text-align:right">$3.80</td>
+            <td style="text-align:right">$48.86</td>
+            <td style="text-align:right">$89.90</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">54.3%</td>
+            <td style="text-align:center"><span style="color:#1e2328;font-weight:600">&#9660; Decrease</span></td>
+        </tr><tr>
+            <td title="harlo electrolytes collagen">harlo electrolytes collagen</td>
+            <td style="font-size:0.8em" title="NM  - SP - 4 Pack - Phrase 2 - MDF - B0DJ3J2CKX - Sep 2025">NM  - SP - 4 Pack - Phrase 2 - MDF ...</td>
+            <td style="text-align:right">$1.84</td>
+            <td style="text-align:right">$4.45</td>
+            <td style="text-align:right">$48.67</td>
+            <td style="text-align:right">$174.10</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">28.0%</td>
+            <td style="text-align:center"><span style="color:#5F9598;font-weight:600">&#9644; Maintain</span></td>
+        </tr><tr>
+            <td title="electrolytes collagen">electrolytes collagen</td>
+            <td style="font-size:0.8em" title="NM - SP - STR - Phrase - Jars - Jan 2026">NM - SP - STR - Phrase - Jars - Jan...</td>
+            <td style="text-align:right">$1.27</td>
+            <td style="text-align:right">$6.20</td>
+            <td style="text-align:right">$41.44</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">—</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr><tr>
+            <td title="electrolytes with creatine">electrolytes with creatine</td>
+            <td style="font-size:0.8em" title="NM  - SP - GPT - 4 Pack - Exact - B0DJ3J2CKX - Jan 2026">NM  - SP - GPT - 4 Pack - Exact - B...</td>
+            <td style="text-align:right">$1.53</td>
+            <td style="text-align:right">$3.47</td>
+            <td style="text-align:right">$39.69</td>
+            <td style="text-align:right">$47.85</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">82.9%</td>
+            <td style="text-align:center"><span style="background:#1e2328;color:#fff;padding:2px 6px;border-radius:3px;font-weight:600">&#9660; Decrease / Pause</span></td>
+        </tr>
+</table>
+</div>
+
+<div class="rec-box">
+<h4>Key Bid Actions</h4>
+<ul>
+<li><strong>"harlo electrolytes" (exact, $3.20 bid):</strong> 54.6% TOS impression share at 16.1% ACOS. Already dominant on branded — no need to increase bid. Maintain current level.</li>
+<li><strong>"+harlo" (broad, $3.25 bid):</strong> 41.9% TOS IS at 10.4% ACOS. Strong performer. Consider slight increase to $3.50–$3.75 to capture additional branded traffic.</li>
+<li><strong>close-match / loose-match (HLP Auto):</strong> Spending $1,600+$880 with sub-1.0 ROAS. These bids ($1.26–$1.36) need to be cut to $0.50 or the campaign paused entirely.</li>
+<li><strong>substitutes (AUTO TEST, $1.83 bid):</strong> 340% ACOS. Pause the substitutes targeting or negate the top-spending substitute ASINs.</li>
+<li><strong>"creatine and electrolytes" (phrase, $2.42 bid):</strong> 4.01 ROAS — strong non-branded term. Consider increasing to $3.00–$3.50 to scale.</li>
+</ul>
+</div>
+
+<!-- ========== 11. PERPETUA ========== -->
+<h2 id="perpetua">11. Perpetua AI Platform Assessment</h2>
+
+<div class="alert alert-warn">
+<strong>Insufficient Data for Full Assessment</strong>
+Perpetua campaigns launched March 18–19 and have only 1–2 days of data. Any performance conclusions would be premature.
+</div>
+
+<div class="overflow-x">
+<table>
+<tr><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th><th style="text-align:right">Impressions</th><th style="text-align:right">Clicks</th><th style="text-align:right">Orders</th></tr>
+<tr>
+            <td title="PERPETUA TEST - Perpetua - SP - Manual - th07fl47">PERPETUA TEST - Perpetua - SP - Manual - th07fl47</td>
+            <td style="text-align:right">$11.76</td>
+            <td style="text-align:right">$0.00</td>
+            <td style="text-align:right">1,365</td>
+            <td style="text-align:right">3</td>
+            <td style="text-align:right">0</td>
+        </tr>
+</table>
+</div>
+
+<div class="card">
+<p><strong>Early observations:</strong></p>
+<ul style="margin-left:18px;margin-top:8px;">
+<li><strong>Excessive fragmentation.</strong> Perpetua created 12 sub-campaigns across 2 campaign groups (PERPETUA TEST + PERPETUA STICKS). Each group has Auto, Manual, PAT, Branded Manual, Branded Pat, and Competitor Manual sub-campaigns. This mirrors the existing account's fragmentation problem.</li>
+<li><strong>Budget spread too thin.</strong> With $16–$33/day per sub-campaign, none will accumulate enough data for Perpetua's AI to optimize effectively. Minimum recommended daily budget per campaign for Perpetua is $50+.</li>
+<li><strong>No portfolio assignment.</strong> All Perpetua campaigns are in "No Portfolio", making it impossible to track their performance against existing portfolio-level budgets.</li>
+<li><strong>Recommendation:</strong> Allow 14–21 days of data before evaluating. If keeping Perpetua, consolidate to fewer campaigns with higher budgets and assign to proper portfolios.</li>
+</ul>
+</div>
+
+<!-- ========== 12. BUSINESS REPORT ========== -->
+<h2 id="buybox">12. Business Report & Buy Box Alert</h2>
+
+<div class="kpi-grid">
+    <div class="kpi"><div class="label">Total Product Sales</div><div class="value">$57,708.35</div><div class="sub">Feb 1 – Mar 18</div></div>
+    <div class="kpi"><div class="label">Total Units</div><div class="value">1,798</div></div>
+    <div class="kpi"><div class="label">Total Sessions</div><div class="value">8,379</div></div>
+    <div class="kpi"><div class="label">Avg Buy Box %</div><div class="value"><span class="breakeven-tag">96.8%</span></div></div>
+    <div class="kpi"><div class="label">Avg Unit Session %</div><div class="value">21.6%</div></div>
+</div>
+
+<div class="alert">
+<strong>Buy Box Percentage Dropped Significantly in March</strong>
+February average Buy Box: <strong>98.8%</strong> &rarr; March average: <strong>93.7%</strong>. On March 13, Buy Box hit a low of <strong>84.9%</strong>. This means ~15% of the time, another seller or Amazon itself is winning the Buy Box on Harlo's listings. Every ad click during those periods sends the customer to a competitor seller. Investigate: is a 3P seller undercutting pricing? Has Amazon buy box eligibility changed?
+</div>
+
+<h3>Daily Business Report</h3>
+<div class="overflow-x">
+<table>
+<tr><th>Date</th><th style="text-align:right">Sales</th><th style="text-align:right">Units</th><th style="text-align:right">Sessions</th><th style="text-align:right">Buy Box %</th><th style="text-align:right">Unit Session %</th></tr>
+<tr>
+            <td>2/1/26</td>
+            <td style="text-align:right">$1,057.95</td>
+            <td style="text-align:right">41</td>
+            <td style="text-align:right">176</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.1%</td>
+            <td style="text-align:right">23.3%</td>
+        </tr><tr>
+            <td>2/2/26</td>
+            <td style="text-align:right">$1,231.00</td>
+            <td style="text-align:right">35</td>
+            <td style="text-align:right">204</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">98.7%</td>
+            <td style="text-align:right">17.2%</td>
+        </tr><tr>
+            <td>2/3/26</td>
+            <td style="text-align:right">$1,183.30</td>
+            <td style="text-align:right">34</td>
+            <td style="text-align:right">197</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.6%</td>
+            <td style="text-align:right">17.3%</td>
+        </tr><tr>
+            <td>2/4/26</td>
+            <td style="text-align:right">$1,031.15</td>
+            <td style="text-align:right">37</td>
+            <td style="text-align:right">171</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">99.0%</td>
+            <td style="text-align:right">21.6%</td>
+        </tr><tr>
+            <td>2/5/26</td>
+            <td style="text-align:right">$633.75</td>
+            <td style="text-align:right">25</td>
+            <td style="text-align:right">190</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.1%</td>
+            <td style="text-align:right">13.2%</td>
+        </tr><tr>
+            <td>2/6/26</td>
+            <td style="text-align:right">$870.85</td>
+            <td style="text-align:right">43</td>
+            <td style="text-align:right">173</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.5%</td>
+            <td style="text-align:right">24.9%</td>
+        </tr><tr>
+            <td>2/7/26</td>
+            <td style="text-align:right">$930.70</td>
+            <td style="text-align:right">41</td>
+            <td style="text-align:right">174</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">23.6%</td>
+        </tr><tr>
+            <td>2/8/26</td>
+            <td style="text-align:right">$919.60</td>
+            <td style="text-align:right">48</td>
+            <td style="text-align:right">218</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.6%</td>
+            <td style="text-align:right">22.0%</td>
+        </tr><tr>
+            <td>2/9/26</td>
+            <td style="text-align:right">$937.90</td>
+            <td style="text-align:right">42</td>
+            <td style="text-align:right">181</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">23.2%</td>
+        </tr><tr>
+            <td>2/10/26</td>
+            <td style="text-align:right">$1,076.60</td>
+            <td style="text-align:right">48</td>
+            <td style="text-align:right">224</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">21.4%</td>
+        </tr><tr>
+            <td>2/11/26</td>
+            <td style="text-align:right">$863.20</td>
+            <td style="text-align:right">36</td>
+            <td style="text-align:right">167</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.5%</td>
+            <td style="text-align:right">21.6%</td>
+        </tr><tr>
+            <td>2/12/26</td>
+            <td style="text-align:right">$1,071.00</td>
+            <td style="text-align:right">40</td>
+            <td style="text-align:right">175</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">22.9%</td>
+        </tr><tr>
+            <td>2/13/26</td>
+            <td style="text-align:right">$1,135.85</td>
+            <td style="text-align:right">43</td>
+            <td style="text-align:right">153</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">98.7%</td>
+            <td style="text-align:right">28.1%</td>
+        </tr><tr>
+            <td>2/14/26</td>
+            <td style="text-align:right">$1,297.75</td>
+            <td style="text-align:right">45</td>
+            <td style="text-align:right">166</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">97.9%</td>
+            <td style="text-align:right">27.1%</td>
+        </tr><tr>
+            <td>2/15/26</td>
+            <td style="text-align:right">$665.50</td>
+            <td style="text-align:right">30</td>
+            <td style="text-align:right">147</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.4%</td>
+            <td style="text-align:right">20.4%</td>
+        </tr><tr>
+            <td>2/16/26</td>
+            <td style="text-align:right">$1,356.55</td>
+            <td style="text-align:right">49</td>
+            <td style="text-align:right">193</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">25.4%</td>
+        </tr><tr>
+            <td>2/17/26</td>
+            <td style="text-align:right">$1,078.00</td>
+            <td style="text-align:right">40</td>
+            <td style="text-align:right">178</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.0%</td>
+            <td style="text-align:right">22.5%</td>
+        </tr><tr>
+            <td>2/18/26</td>
+            <td style="text-align:right">$903.15</td>
+            <td style="text-align:right">37</td>
+            <td style="text-align:right">164</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">97.3%</td>
+            <td style="text-align:right">22.6%</td>
+        </tr><tr>
+            <td>2/19/26</td>
+            <td style="text-align:right">$1,159.90</td>
+            <td style="text-align:right">42</td>
+            <td style="text-align:right">212</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">19.8%</td>
+        </tr><tr>
+            <td>2/20/26</td>
+            <td style="text-align:right">$908.70</td>
+            <td style="text-align:right">26</td>
+            <td style="text-align:right">138</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">96.8%</td>
+            <td style="text-align:right">18.8%</td>
+        </tr><tr>
+            <td>2/21/26</td>
+            <td style="text-align:right">$978.45</td>
+            <td style="text-align:right">31</td>
+            <td style="text-align:right">163</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">97.5%</td>
+            <td style="text-align:right">19.0%</td>
+        </tr><tr>
+            <td>2/22/26</td>
+            <td style="text-align:right">$1,073.40</td>
+            <td style="text-align:right">32</td>
+            <td style="text-align:right">184</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.0%</td>
+            <td style="text-align:right">17.4%</td>
+        </tr><tr>
+            <td>2/23/26</td>
+            <td style="text-align:right">$1,398.10</td>
+            <td style="text-align:right">38</td>
+            <td style="text-align:right">176</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">97.5%</td>
+            <td style="text-align:right">21.6%</td>
+        </tr><tr>
+            <td>2/24/26</td>
+            <td style="text-align:right">$1,023.40</td>
+            <td style="text-align:right">32</td>
+            <td style="text-align:right">193</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.1%</td>
+            <td style="text-align:right">16.6%</td>
+        </tr><tr>
+            <td>2/25/26</td>
+            <td style="text-align:right">$931.30</td>
+            <td style="text-align:right">29</td>
+            <td style="text-align:right">171</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">99.5%</td>
+            <td style="text-align:right">17.0%</td>
+        </tr><tr>
+            <td>2/26/26</td>
+            <td style="text-align:right">$928.55</td>
+            <td style="text-align:right">29</td>
+            <td style="text-align:right">154</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">95.9%</td>
+            <td style="text-align:right">18.8%</td>
+        </tr><tr>
+            <td>2/27/26</td>
+            <td style="text-align:right">$958.60</td>
+            <td style="text-align:right">28</td>
+            <td style="text-align:right">122</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">98.0%</td>
+            <td style="text-align:right">22.9%</td>
+        </tr><tr>
+            <td>2/28/26</td>
+            <td style="text-align:right">$1,607.75</td>
+            <td style="text-align:right">45</td>
+            <td style="text-align:right">134</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">98.0%</td>
+            <td style="text-align:right">33.6%</td>
+        </tr><tr>
+            <td>3/1/26</td>
+            <td style="text-align:right">$993.60</td>
+            <td style="text-align:right">28</td>
+            <td style="text-align:right">164</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">17.1%</td>
+        </tr><tr>
+            <td>3/2/26</td>
+            <td style="text-align:right">$984.00</td>
+            <td style="text-align:right">30</td>
+            <td style="text-align:right">173</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">98.9%</td>
+            <td style="text-align:right">17.3%</td>
+        </tr><tr>
+            <td>3/3/26</td>
+            <td style="text-align:right">$1,447.85</td>
+            <td style="text-align:right">43</td>
+            <td style="text-align:right">179</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">24.0%</td>
+        </tr><tr>
+            <td>3/4/26</td>
+            <td style="text-align:right">$1,537.55</td>
+            <td style="text-align:right">49</td>
+            <td style="text-align:right">279</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">98.3%</td>
+            <td style="text-align:right">17.6%</td>
+        </tr><tr>
+            <td>3/5/26</td>
+            <td style="text-align:right">$1,118.40</td>
+            <td style="text-align:right">32</td>
+            <td style="text-align:right">217</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">87.1%</td>
+            <td style="text-align:right">14.8%</td>
+        </tr><tr>
+            <td>3/6/26</td>
+            <td style="text-align:right">$3,663.00</td>
+            <td style="text-align:right">100</td>
+            <td style="text-align:right">369</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">94.2%</td>
+            <td style="text-align:right">27.1%</td>
+        </tr><tr>
+            <td>3/7/26</td>
+            <td style="text-align:right">$1,455.95</td>
+            <td style="text-align:right">36</td>
+            <td style="text-align:right">175</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">90.8%</td>
+            <td style="text-align:right">20.6%</td>
+        </tr><tr>
+            <td>3/8/26</td>
+            <td style="text-align:right">$1,762.75</td>
+            <td style="text-align:right">45</td>
+            <td style="text-align:right">161</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">91.2%</td>
+            <td style="text-align:right">27.9%</td>
+        </tr><tr>
+            <td>3/9/26</td>
+            <td style="text-align:right">$1,338.30</td>
+            <td style="text-align:right">34</td>
+            <td style="text-align:right">170</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">90.0%</td>
+            <td style="text-align:right">20.0%</td>
+        </tr><tr>
+            <td>3/10/26</td>
+            <td style="text-align:right">$1,722.95</td>
+            <td style="text-align:right">41</td>
+            <td style="text-align:right">178</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">91.8%</td>
+            <td style="text-align:right">23.0%</td>
+        </tr><tr>
+            <td>3/11/26</td>
+            <td style="text-align:right">$1,967.60</td>
+            <td style="text-align:right">48</td>
+            <td style="text-align:right">153</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">89.0%</td>
+            <td style="text-align:right">31.4%</td>
+        </tr><tr>
+            <td>3/12/26</td>
+            <td style="text-align:right">$923.85</td>
+            <td style="text-align:right">23</td>
+            <td style="text-align:right">191</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">91.2%</td>
+            <td style="text-align:right">12.0%</td>
+        </tr><tr>
+            <td>3/13/26</td>
+            <td style="text-align:right">$1,475.45</td>
+            <td style="text-align:right">46</td>
+            <td style="text-align:right">161</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">84.9%</td>
+            <td style="text-align:right">28.6%</td>
+        </tr><tr>
+            <td>3/14/26</td>
+            <td style="text-align:right">$1,118.60</td>
+            <td style="text-align:right">28</td>
+            <td style="text-align:right">152</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">94.0%</td>
+            <td style="text-align:right">18.4%</td>
+        </tr><tr>
+            <td>3/15/26</td>
+            <td style="text-align:right">$1,737.90</td>
+            <td style="text-align:right">42</td>
+            <td style="text-align:right">165</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">96.2%</td>
+            <td style="text-align:right">25.4%</td>
+        </tr><tr>
+            <td>3/16/26</td>
+            <td style="text-align:right">$2,222.25</td>
+            <td style="text-align:right">55</td>
+            <td style="text-align:right">200</td>
+            <td style="text-align:right;color:#1e2328;font-weight:600">92.2%</td>
+            <td style="text-align:right">27.5%</td>
+        </tr><tr>
+            <td>3/17/26</td>
+            <td style="text-align:right">$1,488.20</td>
+            <td style="text-align:right">36</td>
+            <td style="text-align:right">216</td>
+            <td style="text-align:right;color:#5F9598;font-weight:600">100.0%</td>
+            <td style="text-align:right">16.7%</td>
+        </tr><tr>
+            <td>3/18/26</td>
+            <td style="text-align:right">$1,538.20</td>
+            <td style="text-align:right">36</td>
+            <td style="text-align:right">178</td>
+            <td style="text-align:right;color:#6C6C6C;font-weight:600">96.9%</td>
+            <td style="text-align:right">20.2%</td>
+        </tr>
+</table>
+</div>
+
+<!-- ========== 13. STRATEGIC RECOMMENDATIONS ========== -->
+<h2 id="recs">13. Strategic Recommendations</h2>
+
+<div class="rec-box">
+<h4>1. Immediate: Stop the Bleeding (Week 1)</h4>
+<ul>
+<li><strong>Pause or restructure the HLP Audience Auto campaign.</strong> It burned $2,552.58 at 113% ACOS. Switch to Dynamic Down bidding at minimum, or pause and reallocate budget to performing campaigns.</li>
+<li><strong>Pause AUTO TEST MARCH 17.</strong> Dynamic Up & Down bidding on a brand-new auto campaign led to $420 spend at 300% ACOS in just 2 days. This is exactly why Up & Down should not be used on untested campaigns.</li>
+<li><strong>Pause NM - SP - Phrase - All Products Test w/o Collagen.</strong> $466 spend → $145 sales (322% ACOS). The phrase-match version of this test is not working — the auto version is performing better.</li>
+<li><strong>Investigate Buy Box drop.</strong> Check for unauthorized 3P sellers, pricing issues, or inventory/FBA problems causing Buy Box loss.</li>
+</ul>
+</div>
+
+<div class="rec-box">
+<h4>2. Short-Term: Optimize What's Working (Weeks 2–4)</h4>
+<ul>
+<li><strong>Scale branded campaigns.</strong> The MMT Branded campaigns (Jars + 12-Pack) are the account's best performers at 14–19% ACOS. Ensure budgets are never limiting and TOS bid adjustments are maximized.</li>
+<li><strong>Promote winning search terms.</strong> Move "creatine and electrolytes", "creatine and collagen", "collagen creatine electrolytes", and "harlo electrolytes collagen" to dedicated exact-match campaigns with higher bids.</li>
+<li><strong>Implement negative keywords aggressively.</strong> Add the identified negate candidates (above) as exact-match negatives across all auto and broad-match campaigns.</li>
+<li><strong>Right-size bids on non-branded.</strong> Most non-branded campaigns have CPCs of $4–$7 while generating sub-1.0 ROAS. Reduce bids to $1.50–$2.50 and let the algorithm find efficient placements.</li>
+</ul>
+</div>
+
+<div class="rec-box">
+<h4>3. Medium-Term: Restructure the Account (Weeks 4–8)</h4>
+<ul>
+<li><strong>Consolidate to a clean campaign structure:</strong>
+    <ul>
+    <li>Per product line (Jars, Sachets, Stick Packs, Bottle): 1 Branded Exact, 1 Branded Broad, 1 Non-Branded Phrase, 1 Auto (Discovery), 1 Product Targeting (Defense)</li>
+    <li>Account-level: 1 Competitor Conquest campaign, 1 Category campaign</li>
+    <li>Target: ~15–20 active campaigns total (down from 100+)</li>
+    </ul>
+</li>
+<li><strong>Standardize bid strategies.</strong> Use Dynamic Down for all manual campaigns. Reserve Fixed bids only for branded defense where you want maximum impression share. Never use Dynamic Up & Down on non-branded campaigns.</li>
+<li><strong>Set up dayparting/budget rules.</strong> With limited budget, ensure top-performing campaigns aren't running out of budget mid-day while wasteful campaigns continue spending.</li>
+</ul>
+</div>
+
+<div class="rec-box">
+<h4>4. Campaign Type Recommendations</h4>
+<ul>
+<li><strong>Sponsored Products (SP):</strong> Should remain the primary spend driver. Focus on exact/phrase match for converting terms, auto for discovery only at controlled bids.</li>
+<li><strong>Sponsored Brands (SB):</strong> The HSA headline campaigns and SB Video campaigns show promise (e.g., SB HSA Phrase Branded Stick Packs: $81 spend, $359 sales). Continue running SB for branded visibility and Store traffic.</li>
+<li><strong>Sponsored Display (SD):</strong> Currently all paused with $14 total spend. SD retargeting (Views/Purchase remarketing) should be re-evaluated once the SP structure is cleaned up. Low priority for now.</li>
+<li><strong>Perpetua:</strong> Give it 2–3 weeks of data before judging. Consolidate to fewer, better-funded campaigns. Do not overlap Perpetua campaigns with existing manual campaigns on the same keywords — this causes internal competition and inflates CPCs.</li>
+</ul>
+</div>
+
+<hr class="section-divider">
+
+<div class="card" style="border-top:3px solid var(--primary);margin-top:32px;">
+<h3 style="margin-top:0;">Next Steps</h3>
+<p>This audit identifies $4,500+ in monthly wasted ad spend and a clear path to bring the account below the 40% ACOS breakeven. The highest-impact moves — pausing the HLP Auto campaign, restructuring non-branded targeting, and resolving the Buy Box issue — can be implemented within the first two weeks.</p>
+<p>The logical next step is a full-funnel diagnostic to build a restructured campaign architecture, set keyword-level bids, and establish a 60-day optimization roadmap. That is exactly what we do in our <strong>Growth Diagnostic Sprint</strong>.</p>
+<p style="margin-top:16px;margin-bottom:0;"><strong>Abhinav Singh</strong> &bull; Founder, Interconnections<br>
+<span style="color:var(--muted);font-size:9pt;"><a href="https://theinterconnections.com" style="color:var(--primary);text-decoration:none;">theinterconnections.com</a></span></p>
+</div>
+
+<div class="footer">
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:13pt;color:var(--white);margin-bottom:4px;">Interconnections</div>
+    <div style="margin-bottom:12px;">Growth strategy for brands that want to scale profitably, not just grow.</div>
+    <div>
+        <a href="https://theinterconnections.com">theinterconnections.com</a>
+        <span class="divider">|</span>
+        Harlo Amazon Ads Audit
+        <span class="divider">|</span>
+        March 20, 2026
+    </div>
+</div>
+
+</div>
+</body>
+</html>
